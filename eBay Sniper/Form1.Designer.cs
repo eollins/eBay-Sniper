@@ -28,53 +28,53 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.webBrowser1 = new System.Windows.Forms.WebBrowser();
-            this.maskedTextBox1 = new System.Windows.Forms.MaskedTextBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.eBayBrowser = new System.Windows.Forms.WebBrowser();
+            this.bidAmount = new System.Windows.Forms.MaskedTextBox();
+            this.userId = new System.Windows.Forms.TextBox();
+            this.Password = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.maskedTextBox2 = new System.Windows.Forms.MaskedTextBox();
+            this.itemId = new System.Windows.Forms.MaskedTextBox();
+            this.Confirm = new System.Windows.Forms.Button();
+            this.Begin = new System.Windows.Forms.Button();
+            this.timeRemaining = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
-            // webBrowser1
+            // eBayBrowser
             // 
-            this.webBrowser1.Location = new System.Drawing.Point(187, 12);
-            this.webBrowser1.MinimumSize = new System.Drawing.Size(20, 20);
-            this.webBrowser1.Name = "webBrowser1";
-            this.webBrowser1.ScriptErrorsSuppressed = true;
-            this.webBrowser1.Size = new System.Drawing.Size(250, 250);
-            this.webBrowser1.TabIndex = 0;
-            this.webBrowser1.Url = new System.Uri("https://offer.ebay.com/ws/eBayISAPI.dll?MakeBid&fromPage=2047675&item=12280416718" +
-        "1&fb=2", System.UriKind.Absolute);
+            this.eBayBrowser.Location = new System.Drawing.Point(187, 12);
+            this.eBayBrowser.MinimumSize = new System.Drawing.Size(20, 20);
+            this.eBayBrowser.Name = "eBayBrowser";
+            this.eBayBrowser.ScriptErrorsSuppressed = true;
+            this.eBayBrowser.Size = new System.Drawing.Size(681, 250);
+            this.eBayBrowser.TabIndex = 0;
+            this.eBayBrowser.Url = new System.Uri("", System.UriKind.Relative);
             // 
-            // maskedTextBox1
+            // bidAmount
             // 
-            this.maskedTextBox1.Font = new System.Drawing.Font("Calibri", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.maskedTextBox1.Location = new System.Drawing.Point(12, 12);
-            this.maskedTextBox1.Mask = "$00000.00";
-            this.maskedTextBox1.Name = "maskedTextBox1";
-            this.maskedTextBox1.Size = new System.Drawing.Size(169, 37);
-            this.maskedTextBox1.TabIndex = 1;
-            this.maskedTextBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.bidAmount.Font = new System.Drawing.Font("Calibri", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.bidAmount.Location = new System.Drawing.Point(12, 12);
+            this.bidAmount.Mask = "$00000.00";
+            this.bidAmount.Name = "bidAmount";
+            this.bidAmount.Size = new System.Drawing.Size(169, 37);
+            this.bidAmount.TabIndex = 1;
+            this.bidAmount.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // textBox1
+            // userId
             // 
-            this.textBox1.Location = new System.Drawing.Point(12, 75);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(169, 20);
-            this.textBox1.TabIndex = 2;
+            this.userId.Location = new System.Drawing.Point(12, 75);
+            this.userId.Name = "userId";
+            this.userId.Size = new System.Drawing.Size(169, 20);
+            this.userId.TabIndex = 2;
             // 
-            // textBox2
+            // Password
             // 
-            this.textBox2.Location = new System.Drawing.Point(12, 116);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(169, 20);
-            this.textBox2.TabIndex = 3;
-            this.textBox2.UseSystemPasswordChar = true;
+            this.Password.Location = new System.Drawing.Point(12, 116);
+            this.Password.Name = "Password";
+            this.Password.Size = new System.Drawing.Size(169, 20);
+            this.Password.TabIndex = 3;
+            this.Password.UseSystemPasswordChar = true;
             // 
             // label1
             // 
@@ -94,62 +94,77 @@
             this.label2.TabIndex = 5;
             this.label2.Text = "Password";
             // 
-            // maskedTextBox2
+            // itemId
             // 
-            this.maskedTextBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.maskedTextBox2.Location = new System.Drawing.Point(12, 152);
-            this.maskedTextBox2.Mask = "000000000000";
-            this.maskedTextBox2.Name = "maskedTextBox2";
-            this.maskedTextBox2.Size = new System.Drawing.Size(169, 26);
-            this.maskedTextBox2.TabIndex = 6;
-            this.maskedTextBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.itemId.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.itemId.Location = new System.Drawing.Point(12, 152);
+            this.itemId.Mask = "000000000000";
+            this.itemId.Name = "itemId";
+            this.itemId.Size = new System.Drawing.Size(169, 26);
+            this.itemId.TabIndex = 6;
+            this.itemId.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // Confirm
+            // 
+            this.Confirm.Location = new System.Drawing.Point(12, 184);
+            this.Confirm.Name = "Confirm";
+            this.Confirm.Size = new System.Drawing.Size(80, 23);
+            this.Confirm.TabIndex = 7;
+            this.Confirm.Text = "Confirm";
+            this.Confirm.UseVisualStyleBackColor = true;
+            this.Confirm.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // Begin
+            // 
+            this.Begin.Enabled = false;
+            this.Begin.Location = new System.Drawing.Point(101, 184);
+            this.Begin.Name = "Begin";
+            this.Begin.Size = new System.Drawing.Size(80, 23);
+            this.Begin.TabIndex = 8;
+            this.Begin.Text = "Begin";
+            this.Begin.UseVisualStyleBackColor = true;
+            this.Begin.Click += new System.EventHandler(this.Cancel_Click);
+            // 
+            // timeRemaining
+            // 
+            this.timeRemaining.AutoSize = true;
+            this.timeRemaining.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.timeRemaining.Location = new System.Drawing.Point(55, 241);
+            this.timeRemaining.Name = "timeRemaining";
+            this.timeRemaining.Size = new System.Drawing.Size(86, 24);
+            this.timeRemaining.TabIndex = 9;
+            this.timeRemaining.Text = "0h 0m 0s";
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(12, 184);
+            this.button1.Enabled = false;
+            this.button1.Location = new System.Drawing.Point(12, 212);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(80, 23);
-            this.button1.TabIndex = 7;
-            this.button1.Text = "Confirm";
+            this.button1.Size = new System.Drawing.Size(169, 23);
+            this.button1.TabIndex = 10;
+            this.button1.Text = "Cancel";
             this.button1.UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(101, 184);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(80, 23);
-            this.button2.TabIndex = 8;
-            this.button2.Text = "Cancel";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(55, 213);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(86, 24);
-            this.label3.TabIndex = 9;
-            this.label3.Text = "0h 0m 0s";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(448, 271);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.button2);
+            this.ClientSize = new System.Drawing.Size(880, 271);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.maskedTextBox2);
+            this.Controls.Add(this.timeRemaining);
+            this.Controls.Add(this.Begin);
+            this.Controls.Add(this.Confirm);
+            this.Controls.Add(this.itemId);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.maskedTextBox1);
-            this.Controls.Add(this.webBrowser1);
+            this.Controls.Add(this.Password);
+            this.Controls.Add(this.userId);
+            this.Controls.Add(this.bidAmount);
+            this.Controls.Add(this.eBayBrowser);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.Name = "Form1";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -157,16 +172,17 @@
 
         #endregion
 
-        private System.Windows.Forms.WebBrowser webBrowser1;
-        private System.Windows.Forms.MaskedTextBox maskedTextBox1;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.WebBrowser eBayBrowser;
+        private System.Windows.Forms.MaskedTextBox bidAmount;
+        private System.Windows.Forms.TextBox userId;
+        private System.Windows.Forms.TextBox Password;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.MaskedTextBox maskedTextBox2;
+        private System.Windows.Forms.MaskedTextBox itemId;
+        private System.Windows.Forms.Button Confirm;
+        private System.Windows.Forms.Button Begin;
+        private System.Windows.Forms.Label timeRemaining;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Label label3;
     }
 }
 
