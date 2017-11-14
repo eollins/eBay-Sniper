@@ -111,7 +111,7 @@ namespace eBay_Sniper
 
         private void CheckWebpage_Tick(object sender, EventArgs e)
         {
-            if (eBayBrowser.Document.GetElementsByTagName("html")[0].InnerHtml.Contains("position:relative;"))
+            if (eBayBrowser.Document.GetElementsByTagName("html")[0].InnerHtml.Contains("position:relative;") && timing == true)
             {
                 try
                 {
@@ -145,7 +145,7 @@ namespace eBay_Sniper
             time[2] = time[2].Substring(0, time[2].IndexOf('.'));
             DateTime endTimeDt = new DateTime(int.Parse(date[0]), int.Parse(date[1]), int.Parse(date[2]), int.Parse(time[0]), int.Parse(time[1]), int.Parse(time[2]));
             endTimeDt = endTimeDt.AddHours(-8);
-            endTimeDt = endTimeDt.AddSeconds(-4);
+            endTimeDt = endTimeDt.AddSeconds(2);
             end = endTimeDt;
 
             DateTime yes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
