@@ -75,7 +75,7 @@ namespace eBay_Sniper
             //}
 
             XmlDocument doc2 = new XmlDocument();
-            doc2.Load("http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=XML&appid=GregoryM-mailer-PRD-a45ed6035-97c14545&siteid=0&version=967&ItemID=263306114275");
+            doc2.Load("http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=XML&appid=GregoryM-mailer-PRD-a45ed6035-97c14545&siteid=0&version=967&ItemID=" + itemId.Text);
             //MessageBox.Show(doc2.InnerText);
 
             XmlNodeList nodes = ((XmlElement)((XmlElement)doc2.GetElementsByTagName("GetSingleItemResponse")[0]).GetElementsByTagName("Item")[0]).GetElementsByTagName("EndTime");
@@ -84,10 +84,10 @@ namespace eBay_Sniper
             string[] date = components1[0].Split('-');
             string[] time = components1[1].Split(':');
             time[2] = time[2].Substring(0, time[2].IndexOf('.'));
-            DateTime endTimeDt = new DateTime(int.Parse(date[0]), int.Parse(date[1]), int.Parse(date[2]), int.Parse(time[0]), int.Parse(time[1]), int.Parse(time[2]));
+            DateTime endTimeDt = new DateTime(int.Parse(date[0]), int.Parse(date[1]), int.Parse(date[2]), int.Parse(time[0]) - 8, int.Parse(time[1]), int.Parse(time[2]) - 5);
             end = endTimeDt;
 
-            end = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 10);
+            //end = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 10);
             timing = true;
 
             if (eBayBrowser.Url.ToString() == "https://offer.ebay.com/ws/eBayISAPI.dll?MakeBid&fromPage=2047675&item=" + itemId.Text + "&fb=2")
@@ -115,10 +115,10 @@ namespace eBay_Sniper
                     timeRemaining.Text = span.Days + "d " + span.Hours + "h " + span.Minutes + "m " + span.Seconds + "s";
                 }
 
-                if (span.TotalMilliseconds < int.Parse(maskedTextBox1.Text) && span.TotalMilliseconds > 0 && !submitted)
+                //if (span.TotalMilliseconds < int.Parse(maskedTextBox1.Text) && span.TotalMilliseconds > 0 && !submitted)
                 {
                     XmlDocument doc2 = new XmlDocument();
-                    doc2.Load("http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=XML&appid=GregoryM-mailer-PRD-a45ed6035-97c14545&siteid=0&version=967&ItemID=263306114275");
+                    doc2.Load("http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=XML&appid=GregoryM-mailer-PRD-a45ed6035-97c14545&siteid=0&version=967&ItemID=" + itemId.Text);
 
                     string price = ((XmlElement)((XmlElement)doc2.GetElementsByTagName("GetSingleItemResponse")[0]).GetElementsByTagName("Item")[0]).GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText;
                     string max = bidAmount.Text.Substring(bidAmount.Text.LastIndexOf(' '));
@@ -144,12 +144,17 @@ namespace eBay_Sniper
                         s.SetAttribute("text", "function submitBid() { document.getElementById('but_v4-2').click() }");
                         head.AppendChild(s);
                         eBayBrowser.Document.InvokeScript("submitBid");
-                        MessageBox.Show("Bid $" + price);
+                        //MessageBox.Show("Bid $" + price);
                         Cancel_Click(button1, new EventArgs());
+                        //MessageBox.Show("Price: " + price + " Max: " + max);
+                        timing = false;
+                    
                     }
                     else
                     {
                         MessageBox.Show("Price exceeded maximum bid");
+                        MessageBox.Show("Price: " + price + "Max: " + max);
+                        timing = false;
                     }
                 }
             }
@@ -172,9 +177,9 @@ namespace eBay_Sniper
             HtmlDocument doc = eBayBrowser.Document;
             HtmlElement head = doc.GetElementsByTagName("head")[0];
             HtmlElement s = doc.CreateElement("script");
-            s.SetAttribute("text", "function runCommand() { document.getElementById('maxbid').value = '" + price + "'; \n document.getElementById('but_v4-1').click(); }");
+            s.SetAttribute("text", "function sub() { document.getElementById('maxbid').value = '" + price + "'; \n document.getElementById('but_v4-1').click(); }");
             head.AppendChild(s);
-            eBayBrowser.Document.InvokeScript("runCommand");
+            eBayBrowser.Document.InvokeScript("sub");
             submitted = true;
         }
     }

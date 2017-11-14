@@ -132,7 +132,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(194, 197);
+            this.ClientSize = new System.Drawing.Size(963, 275);
             this.Controls.Add(this.maskedTextBox1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.timeRemaining);
