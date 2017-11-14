@@ -8,3 +8,13 @@ C:\Users\ethan\Documents\Visual Studio 2015\Projects\eBay Sniper\eBay Sniper\obj
 C:\Users\ethan\Documents\Visual Studio 2015\Projects\eBay Sniper\eBay Sniper\obj\Debug\eBay Sniper.exe
 C:\Users\ethan\Documents\Visual Studio 2015\Projects\eBay Sniper\eBay Sniper\obj\Debug\eBay Sniper.pdb
 C:\Users\ethan\Documents\Visual Studio 2015\Projects\eBay Sniper\eBay Sniper\obj\Debug\eBay_Sniper.signIn.resources
+C:\Users\ethan\Documents\Visual Studio 2017\Projects\eBay-Sniper\eBay Sniper\bin\Debug\eBay Sniper.exe.config
+C:\Users\ethan\Documents\Visual Studio 2017\Projects\eBay-Sniper\eBay Sniper\bin\Debug\eBay Sniper.exe
+C:\Users\ethan\Documents\Visual Studio 2017\Projects\eBay-Sniper\eBay Sniper\bin\Debug\eBay Sniper.pdb
+C:\Users\ethan\Documents\Visual Studio 2017\Projects\eBay-Sniper\eBay Sniper\obj\Debug\eBay Sniper.csprojResolveAssemblyReference.cache
+C:\Users\ethan\Documents\Visual Studio 2017\Projects\eBay-Sniper\eBay Sniper\obj\Debug\eBay_Sniper.Form1.resources
+C:\Users\ethan\Documents\Visual Studio 2017\Projects\eBay-Sniper\eBay Sniper\obj\Debug\eBay_Sniper.Properties.Resources.resources
+C:\Users\ethan\Documents\Visual Studio 2017\Projects\eBay-Sniper\eBay Sniper\obj\Debug\eBay_Sniper.signIn.resources
+C:\Users\ethan\Documents\Visual Studio 2017\Projects\eBay-Sniper\eBay Sniper\obj\Debug\eBay Sniper.csproj.GenerateResource.Cache
+C:\Users\ethan\Documents\Visual Studio 2017\Projects\eBay-Sniper\eBay Sniper\obj\Debug\eBay Sniper.exe
+C:\Users\ethan\Documents\Visual Studio 2017\Projects\eBay-Sniper\eBay Sniper\obj\Debug\eBay Sniper.pdb

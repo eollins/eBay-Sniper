@@ -44,18 +44,17 @@ namespace eBay_Sniper
             //MessageBox.Show(GetForegroundWindow().ToString());
             //Process.Start("chrome", "https://signin.ebay.com");
             //MessageBox.Show(GetForegroundWindow().ToString());
-            eBayBrowser.Url = new Uri("https://offer.ebay.com/ws/eBayISAPI.dll?MakeBid&fromPage=2047675&item=" + itemId.Text + "&fb=2");
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            
         }
 
         private void Cancel_Click(object sender, EventArgs e)
         {
-            eBayBrowser.Url = new Uri("https://offer.ebay.com/ws/eBayISAPI.dll?MakeBid&fromPage=2047675&item=" + itemId.Text + "&fb=2");
-
+            Begin.Enabled = false;
+            button1.Enabled = true;
             //HtmlDocument source = eBayBrowser.Document;
             //HtmlElement id = source.GetElementById("userid");
             //if (id != null)
@@ -84,23 +83,28 @@ namespace eBay_Sniper
             string[] date = components1[0].Split('-');
             string[] time = components1[1].Split(':');
             time[2] = time[2].Substring(0, time[2].IndexOf('.'));
-            DateTime endTimeDt = new DateTime(int.Parse(date[0]), int.Parse(date[1]), int.Parse(date[2]), int.Parse(time[0]) - 8, int.Parse(time[1]), int.Parse(time[2]) - 5);
+            DateTime endTimeDt = new DateTime(int.Parse(date[0]), int.Parse(date[1]), int.Parse(date[2]), int.Parse(time[0]), int.Parse(time[1]), int.Parse(time[2]));
+            endTimeDt = endTimeDt.AddHours(-8);
+            endTimeDt = endTimeDt.AddSeconds(-4);
             end = endTimeDt;
 
-            //end = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second + 10);
+            DateTime yes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
+            yes = yes.AddSeconds(10);
+            //end = yes;
             timing = true;
 
-            if (eBayBrowser.Url.ToString() == "https://offer.ebay.com/ws/eBayISAPI.dll?MakeBid&fromPage=2047675&item=" + itemId.Text + "&fb=2")
-            {
-                button1.Enabled = true;
-                Begin.Enabled = false;
-            }
-            else
-            {
-                MessageBox.Show("Invalid item number");
-            }
+            //if (eBayBrowser.Url.ToString() == "https://offer.ebay.com/ws/eBayISAPI.dll?MakeBid&fromPage=2047675&item=" + itemId.Text + "&fb=2")
+            //{
+            //    button1.Enabled = true;
+            //    Begin.Enabled = false;
+            //}
+            //else
+            //{
+            //    MessageBox.Show("Invalid item number");
+            //}
         }
 
+        string finalPrice;
         private void timer1_Tick(object sender, EventArgs e)
         {
             if (timing)
@@ -109,25 +113,46 @@ namespace eBay_Sniper
                 if (span.TotalSeconds < 0)
                 {
                     timeRemaining.Text = "Auction Ended";
+                    timeRemaining.ForeColor = Color.Black;
                 }
                 else
                 {
                     timeRemaining.Text = span.Days + "d " + span.Hours + "h " + span.Minutes + "m " + span.Seconds + "s";
+
+                    if (span.TotalMinutes < 10)
+                    {
+                        timeRemaining.ForeColor = Color.Red;
+                    }
+                    else
+                    {
+                        timeRemaining.ForeColor = Color.Black;
+                    }
                 }
 
-                //if (span.TotalMilliseconds < int.Parse(maskedTextBox1.Text) && span.TotalMilliseconds > 0 && !submitted)
-                {
-                    XmlDocument doc2 = new XmlDocument();
-                    doc2.Load("http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=XML&appid=GregoryM-mailer-PRD-a45ed6035-97c14545&siteid=0&version=967&ItemID=" + itemId.Text);
+                XmlDocument doc2 = new XmlDocument();
+                doc2.Load("http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=XML&appid=GregoryM-mailer-PRD-a45ed6035-97c14545&siteid=0&version=967&ItemID=" + itemId.Text);
 
-                    string price = ((XmlElement)((XmlElement)doc2.GetElementsByTagName("GetSingleItemResponse")[0]).GetElementsByTagName("Item")[0]).GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText;
-                    string max = bidAmount.Text.Substring(bidAmount.Text.LastIndexOf(' '));
+                string price = ((XmlElement)((XmlElement)doc2.GetElementsByTagName("GetSingleItemResponse")[0]).GetElementsByTagName("Item")[0]).GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText;
+                string max = bidAmount.Text.Substring(bidAmount.Text.LastIndexOf(' '));
+                
+                if (span.TotalMilliseconds < int.Parse(maskedTextBox1.Text) && span.TotalMilliseconds > 0 && !submitted)
+                {
+                    
                     if (double.Parse(price) < double.Parse(max))
                     {
-                        SubmitBid(double.Parse(bidAmount.Text.Substring(1).Substring(bidAmount.Text.LastIndexOf(' '))) + 0.01);
+                        // or any combination of your JavaScript commands
+                        // (including function calls, variables... etc)
 
+                        finalPrice = (double.Parse(price) + 0.01).ToString();
+                        eBayBrowser.Url = new Uri("https://offer.ebay.com/ws/eBayISAPI.dll?MfcISAPICommand=MakeBid&uiid=1859999246&co_partnerid=2&fb=2&item=" + itemId.Text + "&maxbid=" + (double.Parse(price) + 0.01) + "&Ctn=Continue");
 
-                        string url = eBayBrowser.Url.ToString();
+                        // WebBrowser webBrowser1 is what you are using for your web browser
+                        //HtmlDocument doc3 = eBayBrowser.Document;
+                        //HtmlElement head2 = doc3.GetElementsByTagName("head")[0];
+                        //HtmlElement s2 = doc3.CreateElement("script");
+                        //s2.SetAttribute("text", "function clickButton2() { document.getElementById('but_v4-2').click(); }");
+                        //eBayBrowser.Document.InvokeScript("clickButton2");
+                        //string html = eBayBrowser.Document.GetElementsByTagName("html")[0].InnerHtml;
 
                         //while (url == eBayBrowser.Url.ToString())
                         //{
@@ -138,14 +163,15 @@ namespace eBay_Sniper
 
                         //MessageBox.Show("Bid placed");
 
-                        HtmlDocument doc = eBayBrowser.Document;
-                        HtmlElement head = doc.GetElementsByTagName("head")[0];
-                        HtmlElement s = doc.CreateElement("script");
-                        s.SetAttribute("text", "function submitBid() { document.getElementById('but_v4-2').click() }");
-                        head.AppendChild(s);
-                        eBayBrowser.Document.InvokeScript("submitBid");
+                        //string url = eBayBrowser.Url.ToString();
+                        //while (url == eBayBrowser.Url.ToString()) { }
+
+
+
                         //MessageBox.Show("Bid $" + price);
                         Cancel_Click(button1, new EventArgs());
+
+
                         //MessageBox.Show("Price: " + price + " Max: " + max);
                         timing = false;
                     
@@ -170,17 +196,59 @@ namespace eBay_Sniper
             bidAmount.Enabled = true;
             itemId.Enabled = true;
             timeRemaining.Text = "0d 0h 0m 0s";
+            timeRemaining.ForeColor = Color.Black;
         }
 
-        public void SubmitBid(double price)
+        public void Continue()
         {
-            HtmlDocument doc = eBayBrowser.Document;
-            HtmlElement head = doc.GetElementsByTagName("head")[0];
-            HtmlElement s = doc.CreateElement("script");
-            s.SetAttribute("text", "function sub() { document.getElementById('maxbid').value = '" + price + "'; \n document.getElementById('but_v4-1').click(); }");
-            head.AppendChild(s);
-            eBayBrowser.Document.InvokeScript("sub");
-            submitted = true;
+            eBayBrowser.Document.InvokeScript("clickButton1");
+        }
+
+        public void ConfirmBid()
+        {
+            eBayBrowser.Document.InvokeScript("clickButton2");
+        }
+
+        private void eBayBrowser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
+        {
+            try
+            {
+                if (!eBayBrowser.Url.ToString().Contains("https://offer.ebay.com/ws/eBayISAPI.dll?MfcISAPICommand=MakeBid"))
+                    return;
+                HtmlDocument doc3 = eBayBrowser.Document;
+                HtmlElement head2 = doc3.GetElementsByTagName("html")[0];
+                HtmlElement s2 = doc3.CreateElement("script");
+                s2.SetAttribute("text", "function clickButton2() { document.getElementById('but_v4-2').click(); }");
+                head2.AppendChild(s2);
+                string html = eBayBrowser.Document.GetElementsByTagName("html")[0].InnerHtml;
+
+                if (!head2.InnerHtml.Contains("<BODY>"))
+                    return;
+
+                eBayBrowser.Document.InvokeScript("clickButton2");
+            }
+            catch { }
+        }
+
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            //MessageBox.Show(eBayBrowser.Document.GetElementsByTagName("html")[0].InnerHtml);
+            if (eBayBrowser.Document.GetElementsByTagName("html")[0].InnerHtml.Contains("position:relative;"))
+            {
+                try
+                {
+                    HtmlDocument doc3 = eBayBrowser.Document;
+                    HtmlElement head2 = doc3.GetElementsByTagName("html")[0];
+                    HtmlElement s2 = doc3.CreateElement("script");
+                    s2.SetAttribute("text", "function clickButton2() { document.getElementById('but_v4-2').click(); }");
+                    head2.AppendChild(s2);
+                    string html = eBayBrowser.Document.GetElementsByTagName("html")[0].InnerHtml;
+                    eBayBrowser.Document.InvokeScript("clickButton2");
+                    MessageBox.Show("Successfully bidded " + String.Format(finalPrice, "C"));
+                    button1_Click_1(button1, new EventArgs());
+                }
+                catch { }
+            }
         }
     }
 }

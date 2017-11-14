@@ -38,6 +38,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.maskedTextBox1 = new System.Windows.Forms.MaskedTextBox();
+            this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // eBayBrowser
@@ -48,7 +49,8 @@
             this.eBayBrowser.ScriptErrorsSuppressed = true;
             this.eBayBrowser.Size = new System.Drawing.Size(681, 250);
             this.eBayBrowser.TabIndex = 0;
-            this.eBayBrowser.Url = new System.Uri("http://signin.ebay.com", System.UriKind.Absolute);
+            this.eBayBrowser.Url = new System.Uri("", System.UriKind.Relative);
+            this.eBayBrowser.Navigated += new System.Windows.Forms.WebBrowserNavigatedEventHandler(this.eBayBrowser_Navigated);
             // 
             // bidAmount
             // 
@@ -115,7 +117,7 @@
             // timer1
             // 
             this.timer1.Enabled = true;
-            this.timer1.Interval = 250;
+            this.timer1.Interval = 200;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // maskedTextBox1
@@ -128,11 +130,16 @@
             this.maskedTextBox1.Text = "3500";
             this.maskedTextBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // timer2
+            // 
+            this.timer2.Enabled = true;
+            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(963, 275);
+            this.ClientSize = new System.Drawing.Size(193, 199);
             this.Controls.Add(this.maskedTextBox1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.timeRemaining);
@@ -161,6 +168,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.MaskedTextBox maskedTextBox1;
+        private System.Windows.Forms.Timer timer2;
     }
 }
 
