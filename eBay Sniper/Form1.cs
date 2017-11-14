@@ -24,7 +24,7 @@ namespace eBay_Sniper
             InitializeComponent();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void LogIn(object sender, EventArgs e)
         {
             Confirm.Enabled = false;
             Begin.Enabled = true;
@@ -32,80 +32,23 @@ namespace eBay_Sniper
             itemId.Enabled = false;
 
             new signIn().Show();
-
-
-            //HtmlDocument doc = eBayBrowser.Document;
-            //HtmlElement head = doc.GetElementsByTagName("head")[0];
-            //HtmlElement s = doc.CreateElement("script");
-            //s.SetAttribute("text", "function sayHello() { document.getElementById('userid').value = '" + userId.Text + "'; \n document.getElementById('pass').value = '" + Password.Text + "'; \n document.getElementById('sgnBt').click(); }");
-            //head.AppendChild(s);
-            //eBayBrowser.Document.InvokeScript("sayHello");
-
-            //MessageBox.Show(GetForegroundWindow().ToString());
-            //Process.Start("chrome", "https://signin.ebay.com");
-            //MessageBox.Show(GetForegroundWindow().ToString());
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            
         }
 
         private void Cancel_Click(object sender, EventArgs e)
         {
+            timing = false;
+            Cancel.Enabled = false;
             Begin.Enabled = false;
-            button1.Enabled = true;
-            //HtmlDocument source = eBayBrowser.Document;
-            //HtmlElement id = source.GetElementById("userid");
-            //if (id != null)
-            //{
-            //    HtmlDocument doc2 = eBayBrowser.Document;
-            //    HtmlElement head2 = doc2.GetElementsByTagName("head")[0];
-            //    HtmlElement s2 = doc2.CreateElement("script");
-            //    s2.SetAttribute("text", "function runCommand() { document.getElementById('userid').value = '" + userId.Text + "'; }");
-            //    head2.AppendChild(s2);
-            //    eBayBrowser.Document.InvokeScript("runCommand");
-
-            //    s2.SetAttribute("text", "function runCommand() { document.getElementById('pass').value = '" + Password.Text + "'; }");
-            //    head2.AppendChild(s2);
-            //    eBayBrowser.Document.InvokeScript("runCommand");
-
-            //    SendKeys.Send("{ENTER}");
-            //}
-
-            XmlDocument doc2 = new XmlDocument();
-            doc2.Load("http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=XML&appid=GregoryM-mailer-PRD-a45ed6035-97c14545&siteid=0&version=967&ItemID=" + itemId.Text);
-            //MessageBox.Show(doc2.InnerText);
-
-            XmlNodeList nodes = ((XmlElement)((XmlElement)doc2.GetElementsByTagName("GetSingleItemResponse")[0]).GetElementsByTagName("Item")[0]).GetElementsByTagName("EndTime");
-            string endTime = nodes[0].InnerText;
-            string[] components1 = endTime.Split('T');
-            string[] date = components1[0].Split('-');
-            string[] time = components1[1].Split(':');
-            time[2] = time[2].Substring(0, time[2].IndexOf('.'));
-            DateTime endTimeDt = new DateTime(int.Parse(date[0]), int.Parse(date[1]), int.Parse(date[2]), int.Parse(time[0]), int.Parse(time[1]), int.Parse(time[2]));
-            endTimeDt = endTimeDt.AddHours(-8);
-            endTimeDt = endTimeDt.AddSeconds(-4);
-            end = endTimeDt;
-
-            DateTime yes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
-            yes = yes.AddSeconds(10);
-            //end = yes;
-            timing = true;
-
-            //if (eBayBrowser.Url.ToString() == "https://offer.ebay.com/ws/eBayISAPI.dll?MakeBid&fromPage=2047675&item=" + itemId.Text + "&fb=2")
-            //{
-            //    button1.Enabled = true;
-            //    Begin.Enabled = false;
-            //}
-            //else
-            //{
-            //    MessageBox.Show("Invalid item number");
-            //}
+            Confirm.Enabled = true;
+            eBayBrowser.Url = new Uri("https://signin.ebay.com");
+            bidAmount.Enabled = true;
+            itemId.Enabled = true;
+            timeRemaining.Text = "0d 0h 0m 0s";
+            timeRemaining.ForeColor = Color.Black;
         }
 
         string finalPrice;
-        private void timer1_Tick(object sender, EventArgs e)
+        private void TimeAuction_Click(object sender, EventArgs e)
         {
             if (timing)
             {
@@ -135,44 +78,14 @@ namespace eBay_Sniper
                 string price = ((XmlElement)((XmlElement)doc2.GetElementsByTagName("GetSingleItemResponse")[0]).GetElementsByTagName("Item")[0]).GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText;
                 string max = bidAmount.Text.Substring(bidAmount.Text.LastIndexOf(' '));
                 
-                if (span.TotalMilliseconds < int.Parse(maskedTextBox1.Text) && span.TotalMilliseconds > 0 && !submitted)
+                if (span.TotalMilliseconds < int.Parse(millsecondsBefore.Text) && span.TotalMilliseconds > 0 && !submitted)
                 {
                     
                     if (double.Parse(price) < double.Parse(max))
                     {
-                        // or any combination of your JavaScript commands
-                        // (including function calls, variables... etc)
-
                         finalPrice = (double.Parse(price) + 0.01).ToString();
                         eBayBrowser.Url = new Uri("https://offer.ebay.com/ws/eBayISAPI.dll?MfcISAPICommand=MakeBid&uiid=1859999246&co_partnerid=2&fb=2&item=" + itemId.Text + "&maxbid=" + (double.Parse(price) + 0.01) + "&Ctn=Continue");
-
-                        // WebBrowser webBrowser1 is what you are using for your web browser
-                        //HtmlDocument doc3 = eBayBrowser.Document;
-                        //HtmlElement head2 = doc3.GetElementsByTagName("head")[0];
-                        //HtmlElement s2 = doc3.CreateElement("script");
-                        //s2.SetAttribute("text", "function clickButton2() { document.getElementById('but_v4-2').click(); }");
-                        //eBayBrowser.Document.InvokeScript("clickButton2");
-                        //string html = eBayBrowser.Document.GetElementsByTagName("html")[0].InnerHtml;
-
-                        //while (url == eBayBrowser.Url.ToString())
-                        //{
-                        //    s.SetAttribute("text", "function runCommand() { document.getElementById('but_v4-2').click(); }");
-                        //    head.AppendChild(s);
-                        //    //eBayBrowser.Document.InvokeScript("runCommand");
-                        //}
-
-                        //MessageBox.Show("Bid placed");
-
-                        //string url = eBayBrowser.Url.ToString();
-                        //while (url == eBayBrowser.Url.ToString()) { }
-
-
-
-                        //MessageBox.Show("Bid $" + price);
-                        Cancel_Click(button1, new EventArgs());
-
-
-                        //MessageBox.Show("Price: " + price + " Max: " + max);
+                        Cancel_Click(Cancel, new EventArgs());
                         timing = false;
                     
                     }
@@ -186,19 +99,6 @@ namespace eBay_Sniper
             }
         }
 
-        private void button1_Click_1(object sender, EventArgs e)
-        {
-            timing = false;
-            button1.Enabled = false;
-            Begin.Enabled = false;
-            Confirm.Enabled = true;
-            eBayBrowser.Url = new Uri("https://signin.ebay.com");
-            bidAmount.Enabled = true;
-            itemId.Enabled = true;
-            timeRemaining.Text = "0d 0h 0m 0s";
-            timeRemaining.ForeColor = Color.Black;
-        }
-
         public void Continue()
         {
             eBayBrowser.Document.InvokeScript("clickButton1");
@@ -209,30 +109,8 @@ namespace eBay_Sniper
             eBayBrowser.Document.InvokeScript("clickButton2");
         }
 
-        private void eBayBrowser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
+        private void CheckWebpage_Tick(object sender, EventArgs e)
         {
-            try
-            {
-                if (!eBayBrowser.Url.ToString().Contains("https://offer.ebay.com/ws/eBayISAPI.dll?MfcISAPICommand=MakeBid"))
-                    return;
-                HtmlDocument doc3 = eBayBrowser.Document;
-                HtmlElement head2 = doc3.GetElementsByTagName("html")[0];
-                HtmlElement s2 = doc3.CreateElement("script");
-                s2.SetAttribute("text", "function clickButton2() { document.getElementById('but_v4-2').click(); }");
-                head2.AppendChild(s2);
-                string html = eBayBrowser.Document.GetElementsByTagName("html")[0].InnerHtml;
-
-                if (!head2.InnerHtml.Contains("<BODY>"))
-                    return;
-
-                eBayBrowser.Document.InvokeScript("clickButton2");
-            }
-            catch { }
-        }
-
-        private void timer2_Tick(object sender, EventArgs e)
-        {
-            //MessageBox.Show(eBayBrowser.Document.GetElementsByTagName("html")[0].InnerHtml);
             if (eBayBrowser.Document.GetElementsByTagName("html")[0].InnerHtml.Contains("position:relative;"))
             {
                 try
@@ -245,10 +123,35 @@ namespace eBay_Sniper
                     string html = eBayBrowser.Document.GetElementsByTagName("html")[0].InnerHtml;
                     eBayBrowser.Document.InvokeScript("clickButton2");
                     MessageBox.Show("Successfully bidded " + String.Format(finalPrice, "C"));
-                    button1_Click_1(button1, new EventArgs());
+                    Cancel_Click(Cancel, new EventArgs());
                 }
                 catch { }
             }
+        }
+
+        private void Begin_Click(object sender, EventArgs e)
+        {
+            Begin.Enabled = false;
+            Cancel.Enabled = true;
+
+            XmlDocument doc2 = new XmlDocument();
+            doc2.Load("http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=XML&appid=GregoryM-mailer-PRD-a45ed6035-97c14545&siteid=0&version=967&ItemID=" + itemId.Text);
+
+            XmlNodeList nodes = ((XmlElement)((XmlElement)doc2.GetElementsByTagName("GetSingleItemResponse")[0]).GetElementsByTagName("Item")[0]).GetElementsByTagName("EndTime");
+            string endTime = nodes[0].InnerText;
+            string[] components1 = endTime.Split('T');
+            string[] date = components1[0].Split('-');
+            string[] time = components1[1].Split(':');
+            time[2] = time[2].Substring(0, time[2].IndexOf('.'));
+            DateTime endTimeDt = new DateTime(int.Parse(date[0]), int.Parse(date[1]), int.Parse(date[2]), int.Parse(time[0]), int.Parse(time[1]), int.Parse(time[2]));
+            endTimeDt = endTimeDt.AddHours(-8);
+            endTimeDt = endTimeDt.AddSeconds(-4);
+            end = endTimeDt;
+
+            DateTime yes = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
+            yes = yes.AddSeconds(10);
+            //end = yes;
+            timing = true;
         }
     }
 }

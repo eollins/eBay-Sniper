@@ -35,10 +35,10 @@
             this.Confirm = new System.Windows.Forms.Button();
             this.Begin = new System.Windows.Forms.Button();
             this.timeRemaining = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.maskedTextBox1 = new System.Windows.Forms.MaskedTextBox();
-            this.timer2 = new System.Windows.Forms.Timer(this.components);
+            this.Cancel = new System.Windows.Forms.Button();
+            this.timeAuction = new System.Windows.Forms.Timer(this.components);
+            this.millsecondsBefore = new System.Windows.Forms.MaskedTextBox();
+            this.checkWebpage = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // eBayBrowser
@@ -50,7 +50,6 @@
             this.eBayBrowser.Size = new System.Drawing.Size(681, 250);
             this.eBayBrowser.TabIndex = 0;
             this.eBayBrowser.Url = new System.Uri("", System.UriKind.Relative);
-            this.eBayBrowser.Navigated += new System.Windows.Forms.WebBrowserNavigatedEventHandler(this.eBayBrowser_Navigated);
             // 
             // bidAmount
             // 
@@ -80,7 +79,7 @@
             this.Confirm.TabIndex = 7;
             this.Confirm.Text = "Log In";
             this.Confirm.UseVisualStyleBackColor = true;
-            this.Confirm.Click += new System.EventHandler(this.button1_Click);
+            this.Confirm.Click += new System.EventHandler(this.LogIn);
             // 
             // Begin
             // 
@@ -91,7 +90,7 @@
             this.Begin.TabIndex = 8;
             this.Begin.Text = "Begin";
             this.Begin.UseVisualStyleBackColor = true;
-            this.Begin.Click += new System.EventHandler(this.Cancel_Click);
+            this.Begin.Click += new System.EventHandler(this.Begin_Click);
             // 
             // timeRemaining
             // 
@@ -103,45 +102,45 @@
             this.timeRemaining.Text = "0d 0h 0m 0s";
             this.timeRemaining.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // button1
+            // Cancel
             // 
-            this.button1.Enabled = false;
-            this.button1.Location = new System.Drawing.Point(12, 115);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(169, 23);
-            this.button1.TabIndex = 10;
-            this.button1.Text = "Cancel";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click_1);
+            this.Cancel.Enabled = false;
+            this.Cancel.Location = new System.Drawing.Point(12, 115);
+            this.Cancel.Name = "Cancel";
+            this.Cancel.Size = new System.Drawing.Size(169, 23);
+            this.Cancel.TabIndex = 10;
+            this.Cancel.Text = "Cancel";
+            this.Cancel.UseVisualStyleBackColor = true;
+            this.Cancel.Click += new System.EventHandler(this.Cancel_Click);
             // 
-            // timer1
+            // timeAuction
             // 
-            this.timer1.Enabled = true;
-            this.timer1.Interval = 200;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.timeAuction.Enabled = true;
+            this.timeAuction.Interval = 200;
+            this.timeAuction.Tick += new System.EventHandler(this.TimeAuction_Click);
             // 
-            // maskedTextBox1
+            // millsecondsBefore
             // 
-            this.maskedTextBox1.Location = new System.Drawing.Point(72, 170);
-            this.maskedTextBox1.Mask = "0000";
-            this.maskedTextBox1.Name = "maskedTextBox1";
-            this.maskedTextBox1.Size = new System.Drawing.Size(46, 20);
-            this.maskedTextBox1.TabIndex = 11;
-            this.maskedTextBox1.Text = "3500";
-            this.maskedTextBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.millsecondsBefore.Location = new System.Drawing.Point(72, 170);
+            this.millsecondsBefore.Mask = "0000";
+            this.millsecondsBefore.Name = "millsecondsBefore";
+            this.millsecondsBefore.Size = new System.Drawing.Size(46, 20);
+            this.millsecondsBefore.TabIndex = 11;
+            this.millsecondsBefore.Text = "3500";
+            this.millsecondsBefore.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // timer2
+            // checkWebpage
             // 
-            this.timer2.Enabled = true;
-            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
+            this.checkWebpage.Enabled = true;
+            this.checkWebpage.Tick += new System.EventHandler(this.CheckWebpage_Tick);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(193, 199);
-            this.Controls.Add(this.maskedTextBox1);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.millsecondsBefore);
+            this.Controls.Add(this.Cancel);
             this.Controls.Add(this.timeRemaining);
             this.Controls.Add(this.Begin);
             this.Controls.Add(this.Confirm);
@@ -151,7 +150,6 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.Name = "Form1";
-            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -165,10 +163,10 @@
         private System.Windows.Forms.Button Confirm;
         private System.Windows.Forms.Button Begin;
         private System.Windows.Forms.Label timeRemaining;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.MaskedTextBox maskedTextBox1;
-        private System.Windows.Forms.Timer timer2;
+        private System.Windows.Forms.Button Cancel;
+        private System.Windows.Forms.Timer timeAuction;
+        private System.Windows.Forms.MaskedTextBox millsecondsBefore;
+        private System.Windows.Forms.Timer checkWebpage;
     }
 }
 
