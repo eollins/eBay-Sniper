@@ -39,6 +39,7 @@
             this.timeAuction = new System.Windows.Forms.Timer(this.components);
             this.millsecondsBefore = new System.Windows.Forms.MaskedTextBox();
             this.checkWebpage = new System.Windows.Forms.Timer(this.components);
+            this.updateTimes = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // eBayBrowser
@@ -134,6 +135,10 @@
             this.checkWebpage.Enabled = true;
             this.checkWebpage.Tick += new System.EventHandler(this.CheckWebpage_Tick);
             // 
+            // updateTimes
+            // 
+            this.updateTimes.Interval = 200;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -167,6 +172,7 @@
         private System.Windows.Forms.Timer timeAuction;
         private System.Windows.Forms.MaskedTextBox millsecondsBefore;
         private System.Windows.Forms.Timer checkWebpage;
+        private System.Windows.Forms.Timer updateTimes;
     }
 }
 
