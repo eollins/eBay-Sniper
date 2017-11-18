@@ -200,7 +200,7 @@
             // 
             this.numericUpDown1.Location = new System.Drawing.Point(141, 558);
             this.numericUpDown1.Maximum = new decimal(new int[] {
-            10000,
+            30000,
             0,
             0,
             0});
@@ -247,7 +247,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(696, 590);
+            this.ClientSize = new System.Drawing.Size(698, 590);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.itemNumber);
             this.Controls.Add(this.viewLog);

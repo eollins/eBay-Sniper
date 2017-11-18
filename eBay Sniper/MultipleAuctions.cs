@@ -164,7 +164,7 @@ namespace eBay_Sniper
 
                 if (timeLeft.TotalMilliseconds <= (int)numericUpDown1.Value && timeLeft.TotalMilliseconds >= 0 && !finishedIDs.Contains(components[1]))
                 {
-                    BidOnItem(components[1], components[components.Length - 1]); //Sends bid request when specified time is let
+                    BidOnItem(components[1], components[components.Length - 1]); //Sends bid request
                 }
                 
                 if (timeLeft.TotalMilliseconds > 10)
@@ -296,7 +296,6 @@ namespace eBay_Sniper
                         head2.AppendChild(s2);
                         string html = webBrowser1.Document.GetElementsByTagName("html")[0].InnerHtml;
                         webBrowser1.Document.InvokeScript("clickButton2");
-                        webBrowser1.Url = new Uri("about:blank");
                         //Sends confirmation request and redirects the page
                     }
                     catch { }
@@ -380,6 +379,10 @@ namespace eBay_Sniper
 
         private void MultipleAuctions_Load(object sender, EventArgs e)
         {
+            //if (!File.Exists(CurrentDatePath()))
+            //{
+            //    File.Create(CurrentDatePath());
+            //}
         }
 
         private void viewLog_Click(object sender, EventArgs e)
@@ -390,7 +393,7 @@ namespace eBay_Sniper
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Process.Start(Path.GetFullPath(@"Past Logs"));
+            Process.Start(@"Past Logs");
         }
     }
 }
