@@ -6,8 +6,11 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -20,6 +23,8 @@ namespace eBay_Sniper
         List<string> items = new List<string>();
         List<string> finishedIDs = new List<string>();
         string itemsString = "";
+
+        Point button = new Point(0, 0);
 
         public MultipleAuctions()
         {
@@ -103,7 +108,7 @@ namespace eBay_Sniper
                 //items.Add(item2 + "," + item.GetElementsByTagName("ItemID")[0].InnerText + "," + item.GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText + "," + yes.Year + "," + yes.Month + "," + yes.Day + "," + yes.Hour + "," + yes.Minute + "," + yes.Second + "," + maxBid.Text);
 
                 updateTime_Tick(updateTime, new EventArgs());
-                //Compiles information string
+                //Compiles i`nformation string
 
                 i++;
             }
@@ -123,6 +128,7 @@ namespace eBay_Sniper
             getUpdates_Tick(getInfo, new EventArgs());
         }
 
+        bool okayToBid = true;
         private void updateTime_Tick(object sender, EventArgs e)
         {
             ListView.SelectedIndexCollection index = itemTable.SelectedIndices;
@@ -141,7 +147,7 @@ namespace eBay_Sniper
                     if (span < closest)
                     {
                         closestTime = endTime;
-                        moveItemToTop(components[1]);
+                        //moveItemToTop(components[1]);
                     }
                 }
             }
@@ -149,28 +155,56 @@ namespace eBay_Sniper
 
             //Finds the listing that is ending soonest and reorganizes the list accordingly
 
-            itemTable.Items.Clear();
-            foreach (string item in items)
+            try
             {
-                string[] components = item.Split(',');   
-
-                DateTime endTime = new DateTime(int.Parse(components[3]), int.Parse(components[4]), int.Parse(components[5]), int.Parse(components[6]), int.Parse(components[7]), int.Parse(components[8]));
-                //endTime = endTime.AddHours(-8);
-                string dateTime = endTime.Month + "/" + endTime.Day + "/" + endTime.Year + " " + endTime.Hour + ":" + endTime.Minute + ":" + endTime.Second;
-                TimeSpan timeLeft = endTime - DateTime.Now;
-                string timeLeft2 = timeLeft.Days + "d " + timeLeft.Hours + "h " + timeLeft.Minutes + "m " + timeLeft.Seconds + "s";
-                string[] row = { components[0], components[1], GetCurrentPrice(components[1]), dateTime, timeLeft2, components[9] };
-                var listViewItem = new ListViewItem(row);
-
-                if (timeLeft.TotalMilliseconds <= (int)numericUpDown1.Value && timeLeft.TotalMilliseconds >= 0 && !finishedIDs.Contains(components[1]))
+                int i = 0;
+                foreach (string item in items)
                 {
-                    BidOnItem(components[1], components[components.Length - 1]); //Sends bid request
+                    string[] components = item.Split(',');
+
+                    DateTime endTime = new DateTime(int.Parse(components[3]), int.Parse(components[4]), int.Parse(components[5]), int.Parse(components[6]), int.Parse(components[7]), int.Parse(components[8]));
+                    //endTime = endTime.AddHours(-8);
+                    string dateTime = endTime.Month + "/" + endTime.Day + "/" + endTime.Year + " " + endTime.Hour + ":" + endTime.Minute + ":" + endTime.Second;
+                    TimeSpan timeLeft = endTime - DateTime.Now;
+                    string timeLeft2 = timeLeft.Days + "d " + timeLeft.Hours + "h " + timeLeft.Minutes + "m " + timeLeft.Seconds + "s";
+                    string[] row = { components[0], components[1], GetCurrentPrice(components[1]), dateTime, timeLeft2, components[9] };
+                    var listViewItem = new ListViewItem(row);
+
+                    if (timeLeft.TotalMilliseconds <= (int)numericUpDown1.Value && timeLeft.TotalMilliseconds >= 0 && !finishedIDs.Contains(components[1]))
+                    {
+                        if (okayToBid)
+                        {
+                            BidOnItem(components[1], components[components.Length - 1]); //Sends bid request
+                            Invoke(new Action(() => { itemTable.Items.Remove(listViewItem); }));
+                            items.Remove(item);
+                        }
+                    }
+
+                    if (timeLeft.TotalMilliseconds > 1000)
+                    {
+                        ListViewItem item2 = null;
+                        Invoke(new Action(() => { item2 = itemTable.FindItemWithText(components[0]); }));
+                        if (item2 != null)
+                        {
+                            Invoke(new Action(() => { itemTable.Items[i] = listViewItem; })); //Controls addition or removal of items from list
+                        }
+                        else
+                        {
+                            Invoke(new Action(() => { itemTable.Items.Add(listViewItem); }));
+                        }
+                    }
+                    else
+                    {
+                        Invoke(new Action(() => { itemTable.Items.Remove(listViewItem); }));
+                        items.Remove(item);
+                    }
+
+                    i++;
                 }
-                
-                if (timeLeft.TotalMilliseconds > 10)
-                {
-                    itemTable.Items.Add(listViewItem); //Controls addition or removal of items from list
-                }
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show(ex.Message);
             }
         }
 
@@ -205,6 +239,8 @@ namespace eBay_Sniper
 
         private void BidOnItem(string ID, string maxBid)
         {
+            okayToBid = false;
+
             //Cancels if the item has been bid on already
             if (finishedIDs.Contains(ID))
                 return;
@@ -227,13 +263,23 @@ namespace eBay_Sniper
 
             try
             {
-                if (double.Parse(price) < double.Parse(maxBid))
+                if (double.Parse(price) < double.Parse(maxBid) && !finishedIDs.Contains(ID))
                 {
                     //If specified bid is eligible, sends hidden WebBrowser to a confirmation screen
                     string finalPrice = maxBid;
-                    webBrowser1.Url = new Uri("https://offer.ebay.com/ws/eBayISAPI.dll?MfcISAPICommand=MakeBid&uiid=1859999246&co_partnerid=2&fb=2&item=" + ID + "&maxbid=" + (double.Parse(maxBid)) + "&Ctn=Continue");
-                    Log("Bid " + String.Format(maxBid, "C") + " on item number " + itemNumber.Text);
+                    
+                    ProcessStartInfo startInfo = new ProcessStartInfo("chrome", "https://offer.ebay.com/ws/eBayISAPI.dll?MfcISAPICommand=MakeBid&uiid=1859999246&co_partnerid=2&fb=2&item=" + ID + "&maxbid=" + (double.Parse(maxBid)) + "&Ctn=Continue");
+                    startInfo.WindowStyle = ProcessWindowStyle.Maximized;
+                    Process.Start(startInfo);
+
+                    Thread.Sleep(1500);
+
+                    Cursor.Position = button;
+                    LeftMouseClick(button.X, button.Y);
+
+                    //SendKeys.Send("{ENTER}");
                     finishedIDs.Add(ID);
+                    Log("Bid " + String.Format(maxBid, "C") + " on item number " + itemNumber.Text);
                 }
                 else
                 {
@@ -244,8 +290,28 @@ namespace eBay_Sniper
             }
             catch
             {
-                
+                Log("Exception");
             }
+
+            okayToBid = true;
+        }
+
+        //This is a replacement for Cursor.Position in WinForms
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        static extern bool SetCursorPos(int x, int y);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        public static extern void mouse_event(int dwFlags, int dx, int dy, int cButtons, int dwExtraInfo);
+
+        public const int MOUSEEVENTF_LEFTDOWN = 0x02;
+        public const int MOUSEEVENTF_LEFTUP = 0x04;
+
+        //This simulates a left mouse click
+        public static void LeftMouseClick(int xpos, int ypos)
+        {
+            SetCursorPos(xpos, ypos);
+            mouse_event(MOUSEEVENTF_LEFTDOWN, xpos, ypos, 0, 0);
+            mouse_event(MOUSEEVENTF_LEFTUP, xpos, ypos, 0, 0);
         }
 
         private void logIn_Click(object sender, EventArgs e)
@@ -255,10 +321,11 @@ namespace eBay_Sniper
             Import.Enabled = true;
             maxBid.Enabled = true;
             itemNumber.Enabled = true;
-            addItem.Enabled = true;
+            //addItem.Enabled = true;
             removeItem.Enabled = true;
             logIn.Enabled = false;
             viewLog.Enabled = true;
+            button1.Enabled = true;
 
             Log("User logged in");
         }
@@ -267,7 +334,27 @@ namespace eBay_Sniper
         {
             //Logs events to a local file depending on date
             string logData = "[" + DateTime.Now.Year + " - " + DateTime.Now.Month + " - " + DateTime.Now.Day + " " + DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" + DateTime.Now.Second + "] " + message + "\n";
-            File.AppendAllText(CurrentDatePath(), logData + Environment.NewLine);
+
+            bool success = false;
+            try
+            {
+                File.AppendAllText(CurrentDatePath(), logData + Environment.NewLine);
+            }
+            catch
+            {
+                while (success == false)
+                {
+                    try
+                    {
+                        File.AppendAllText(CurrentDatePath(), logData + Environment.NewLine);
+                        success = true;
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                }
+            }
         }
 
         private string CurrentDatePath()
@@ -282,26 +369,26 @@ namespace eBay_Sniper
 
         private void checkWebpage_Tick(object sender, EventArgs e)
         {
-            try
-            {
-                //Checks to see if confirmation screen is loaded
-                if (webBrowser1.Document.GetElementsByTagName("html")[0].InnerHtml.Contains("position:relative;"))
-                {
-                    try
-                    {
-                        HtmlDocument doc3 = webBrowser1.Document;
-                        HtmlElement head2 = doc3.GetElementsByTagName("html")[0];
-                        HtmlElement s2 = doc3.CreateElement("script");
-                        s2.SetAttribute("text", "function clickButton2() { document.getElementById('but_v4-2').click(); }");
-                        head2.AppendChild(s2);
-                        string html = webBrowser1.Document.GetElementsByTagName("html")[0].InnerHtml;
-                        webBrowser1.Document.InvokeScript("clickButton2");
-                        //Sends confirmation request and redirects the page
-                    }
-                    catch { }
-                }
-            }
-            catch { }
+            //try
+            //{
+            //    //Checks to see if confirmation screen is loaded
+            //    if (webBrowser1.Document.GetElementsByTagName("html")[0].InnerHtml.Contains("position:relative;"))
+            //    {
+            //        try
+            //        {
+            //            HtmlDocument doc3 = webBrowser1.Document;
+            //            HtmlElement head2 = doc3.GetElementsByTagName("html")[0];
+            //            HtmlElement s2 = doc3.CreateElement("script");
+            //            s2.SetAttribute("text", "function clickButton2() { document.getElementById('but_v4-2').click(); }");
+            //            head2.AppendChild(s2);
+            //            string html = webBrowser1.Document.GetElementsByTagName("html")[0].InnerHtml;
+            //            webBrowser1.Document.InvokeScript("clickButton2");
+            //            //Sends confirmation request and redirects the page
+            //        }
+            //        catch { }
+            //    }
+            //}
+            //catch { }
         }
 
         private string GetCurrentPrice(string id)
@@ -321,6 +408,15 @@ namespace eBay_Sniper
                 if (items[i].Contains(itemNumber.Text))
                 {
                     items.RemoveAt(i);
+                    for (int q = 0; q < itemTable.Items.Count; q++)
+                    {
+                        if (itemTable.Items[q].Text == items[i].Split(',')[0])
+                        {
+                            itemTable.Items.Remove(itemTable.Items[q]);
+                        }
+                    }
+
+
                     Log("Removed item number " + itemNumber.Text);
                 }
             }
@@ -340,13 +436,26 @@ namespace eBay_Sniper
                 {
                     try
                     {
+                        if (s == "")
+                            continue;
+
                         string[] comp = s.Split(',');
                         itemIds.Add(comp[0]);
-                        maxBids.Add(double.Parse(comp[1]));
+
+                        if (comp[1].Contains("\r"))
+                        {
+                            maxBids.Add(double.Parse(comp[1].Substring(0, comp[1].Length - 1)));
+                        }
+                        else
+                        {
+                            maxBids.Add(double.Parse(comp[1]));
+                        }
+
                         getUpdates_Tick(getInfo, new EventArgs());
                     }
                     catch
                     {
+                        MessageBox.Show("Failed to add item " + s);
                         continue; //first line headings
                     }
                 }
@@ -379,10 +488,12 @@ namespace eBay_Sniper
 
         private void MultipleAuctions_Load(object sender, EventArgs e)
         {
-            //if (!File.Exists(CurrentDatePath()))
-            //{
-            //    File.Create(CurrentDatePath());
-            //}
+            System.Timers.Timer timer = new System.Timers.Timer(200);
+
+            // Hook up the Elapsed event for the timer.
+            timer.Elapsed += new ElapsedEventHandler(updateTime_Tick);
+
+            timer.Enabled = true;
         }
 
         private void viewLog_Click(object sender, EventArgs e)
@@ -395,5 +506,35 @@ namespace eBay_Sniper
         {
             Process.Start(@"Past Logs");
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (itemNumber.Text == "")
+            {
+                MessageBox.Show("Please enter a valid active item number.");
+            }
+            else
+            {
+                MessageBox.Show("An eBay confirmation page will be opened. Within five seconds, place your cursor over the \"Confirm Bid\" button.");
+
+                Process process = new Process();
+                ProcessStartInfo startInfo = new ProcessStartInfo("chrome", "https://offer.ebay.com/ws/eBayISAPI.dll?MfcISAPICommand=MakeBid&uiid=1859999246&co_partnerid=2&fb=2&item=" + itemNumber.Text + "&maxbid=" + (double.Parse(maxBid.Text)) + "&Ctn=Continue");
+                startInfo.WindowStyle = ProcessWindowStyle.Maximized;
+                process.StartInfo = startInfo;
+                process.Start();
+
+                Thread.Sleep(5000);
+
+                this.Activate();
+
+                button = Cursor.Position;
+                MessageBox.Show("Bid confirmation button placed at " + button.X + ", " + button.Y);
+
+                addItem.Enabled = true;
+            }
+        }
+
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
     }
 }

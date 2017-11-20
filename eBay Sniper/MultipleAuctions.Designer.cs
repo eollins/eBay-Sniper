@@ -51,6 +51,7 @@
             this.viewLog = new System.Windows.Forms.Button();
             this.itemNumber = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -129,9 +130,9 @@
             // addItem
             // 
             this.addItem.Enabled = false;
-            this.addItem.Location = new System.Drawing.Point(423, 522);
+            this.addItem.Location = new System.Drawing.Point(423, 550);
             this.addItem.Name = "addItem";
-            this.addItem.Size = new System.Drawing.Size(60, 56);
+            this.addItem.Size = new System.Drawing.Size(60, 28);
             this.addItem.TabIndex = 5;
             this.addItem.Text = "Add Item";
             this.addItem.UseVisualStyleBackColor = true;
@@ -140,9 +141,9 @@
             // removeItem
             // 
             this.removeItem.Enabled = false;
-            this.removeItem.Location = new System.Drawing.Point(489, 522);
+            this.removeItem.Location = new System.Drawing.Point(489, 550);
             this.removeItem.Name = "removeItem";
-            this.removeItem.Size = new System.Drawing.Size(71, 56);
+            this.removeItem.Size = new System.Drawing.Size(71, 28);
             this.removeItem.TabIndex = 6;
             this.removeItem.Text = "Clear Items";
             this.removeItem.UseVisualStyleBackColor = true;
@@ -166,7 +167,6 @@
             // 
             // updateTime
             // 
-            this.updateTime.Enabled = true;
             this.updateTime.Interval = 200;
             this.updateTime.Tick += new System.EventHandler(this.updateTime_Tick);
             // 
@@ -208,7 +208,7 @@
             this.numericUpDown1.Size = new System.Drawing.Size(120, 20);
             this.numericUpDown1.TabIndex = 2;
             this.numericUpDown1.Value = new decimal(new int[] {
-            4000,
+            2500,
             0,
             0,
             0});
@@ -243,11 +243,23 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // button2
+            // 
+            this.button2.Enabled = false;
+            this.button2.Location = new System.Drawing.Point(423, 523);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(137, 21);
+            this.button2.TabIndex = 9;
+            this.button2.Text = "Calibrate";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // MultipleAuctions
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(698, 590);
+            this.ClientSize = new System.Drawing.Size(697, 590);
+            this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.itemNumber);
             this.Controls.Add(this.viewLog);
@@ -262,6 +274,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.Name = "MultipleAuctions";
+            this.Text = "eBay Browser Sniper";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MultipleAuctions_FormClosing);
             this.Load += new System.EventHandler(this.MultipleAuctions_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
@@ -294,5 +307,6 @@
         private System.Windows.Forms.Button viewLog;
         private System.Windows.Forms.TextBox itemNumber;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button button2;
     }
 }
