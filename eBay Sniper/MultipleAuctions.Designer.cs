@@ -172,9 +172,8 @@
             // 
             // checkTimes
             // 
-            this.checkTimes.Enabled = true;
-            this.checkTimes.Interval = 200;
-            this.checkTimes.Tick += new System.EventHandler(this.checkTimes_Tick);
+            this.checkTimes.Interval = 5000;
+            this.checkTimes.Tick += new System.EventHandler(this.updateTime_Tick);
             // 
             // checkWebpage
             // 

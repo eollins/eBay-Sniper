@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
 using System.Xml;
+using static System.Windows.Forms.ListViewItem;
 
 namespace eBay_Sniper
 {
@@ -95,7 +96,7 @@ namespace eBay_Sniper
                 string dateTime = endTimeDt.Month + "/" + endTimeDt.Day + "/" + endTimeDt.Year + " " + endTimeDt.Hour + ":" + endTimeDt.Minute + ":" + endTimeDt.Second;
                 //string dateTime = yes.Month + "/" + yes.Day + "/" + yes.Year + " " + yes.Hour + ":" + yes.Minute + ":" + yes.Second;
 
-                TimeSpan span = yes - DateTime.Now;
+                TimeSpan span = endTimeDt - DateTime.Now;
                 string timeLeft = span.Days + "d " + span.Hours + "h " + span.Minutes + "m " + span.Seconds + "s";
 
                 StringBuilder sb = new StringBuilder(item.GetElementsByTagName("Title")[0].InnerText);
@@ -182,11 +183,36 @@ namespace eBay_Sniper
 
                     if (timeLeft.TotalMilliseconds > 1000)
                     {
-                        ListViewItem item2 = null;
-                        Invoke(new Action(() => { item2 = itemTable.FindItemWithText(components[0]); }));
-                        if (item2 != null)
+                        int indexToChange = -1;
+
+                        try
                         {
-                            Invoke(new Action(() => { itemTable.Items[i] = listViewItem; })); //Controls addition or removal of items from list
+                            Invoke(new Action(() => {
+                                for (int q = 0; q < itemTable.Items.Count; q++)
+                                {
+                                    ListViewItem item4 = itemTable.Items[i];
+                                    string itemNumberOfItem = item4.SubItems[1].Text;
+
+                                    if (itemNumberOfItem == components[1])
+                                    {
+                                        indexToChange = i;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        indexToChange = -1;
+                                    }
+                                }
+                            }));
+                        }
+                        catch
+                        {
+                            indexToChange = -1;
+                        }
+
+                        if (indexToChange >= 0)
+                        {
+                            Invoke(new Action(() => { itemTable.Items[indexToChange] = listViewItem; })); //Controls addition or removal of items from list
                         }
                         else
                         {
@@ -228,13 +254,7 @@ namespace eBay_Sniper
 
         private void checkTimes_Tick(object sender, EventArgs e)
         {
-            if (items.Count == 0)
-                return;
 
-            foreach (string item in items)
-            {
-
-            }
         }
 
         private void BidOnItem(string ID, string maxBid)
@@ -318,14 +338,14 @@ namespace eBay_Sniper
         {
             //Opens a sign in screen
             new signIn().ShowDialog();
-            Import.Enabled = true;
+            //Import.Enabled = true;
             maxBid.Enabled = true;
             itemNumber.Enabled = true;
             //addItem.Enabled = true;
             removeItem.Enabled = true;
             logIn.Enabled = false;
             viewLog.Enabled = true;
-            button1.Enabled = true;
+            button2.Enabled = true;
 
             Log("User logged in");
         }
@@ -403,16 +423,16 @@ namespace eBay_Sniper
         private void removeItem_Click(object sender, EventArgs e)
         {
             //Removes an item from the list depending on the item number
-            for (int i = items.Count - 1; i >= 0; i--)
+            for (int i = 0; i < items.Count; i++)
             {
-                if (items[i].Contains(itemNumber.Text))
+                if (items[i].Split(',')[1] == itemNumber.Text)
                 {
-                    items.RemoveAt(i);
                     for (int q = 0; q < itemTable.Items.Count; q++)
                     {
-                        if (itemTable.Items[q].Text == items[i].Split(',')[0])
+                        if (itemTable.Items[q].SubItems[1].Text == items[i].Split(',')[1])
                         {
                             itemTable.Items.Remove(itemTable.Items[q]);
+                            items.RemoveAt(i);
                         }
                     }
 
@@ -427,6 +447,8 @@ namespace eBay_Sniper
             //Imports a spreadsheet of item numbers and bids
             if (openCSV.ShowDialog() == DialogResult.OK)
             {
+                //Thread.Sleep(200);
+
                 StreamReader reader = new StreamReader(openCSV.FileName);
                 string data = reader.ReadToEnd();
 
@@ -440,18 +462,19 @@ namespace eBay_Sniper
                             continue;
 
                         string[] comp = s.Split(',');
-                        itemIds.Add(comp[0]);
+                        itemNumber.Text = comp[0];
 
                         if (comp[1].Contains("\r"))
                         {
-                            maxBids.Add(double.Parse(comp[1].Substring(0, comp[1].Length - 1)));
+                            maxBid.Text = comp[1].Substring(0, comp[1].Length - 1);
                         }
                         else
                         {
-                            maxBids.Add(double.Parse(comp[1]));
+                            maxBid.Text = comp[1];
                         }
 
-                        getUpdates_Tick(getInfo, new EventArgs());
+                        //MessageBox.Show(itemNumber.Text + " " + maxBid.Text);
+                        addItem_Click(addItem, new EventArgs());
                     }
                     catch
                     {
@@ -459,6 +482,9 @@ namespace eBay_Sniper
                         continue; //first line headings
                     }
                 }
+
+                itemNumber.Text = "";
+                maxBid.Text = "";
 
                 Log("Imported item spreadsheet at " + openCSV.FileName);
             }
@@ -517,11 +543,18 @@ namespace eBay_Sniper
             {
                 MessageBox.Show("An eBay confirmation page will be opened. Within five seconds, place your cursor over the \"Confirm Bid\" button.");
 
-                Process process = new Process();
-                ProcessStartInfo startInfo = new ProcessStartInfo("chrome", "https://offer.ebay.com/ws/eBayISAPI.dll?MfcISAPICommand=MakeBid&uiid=1859999246&co_partnerid=2&fb=2&item=" + itemNumber.Text + "&maxbid=" + (double.Parse(maxBid.Text)) + "&Ctn=Continue");
-                startInfo.WindowStyle = ProcessWindowStyle.Maximized;
-                process.StartInfo = startInfo;
-                process.Start();
+                try
+                {
+                    Process process = new Process();
+                    ProcessStartInfo startInfo = new ProcessStartInfo("chrome", "https://offer.ebay.com/ws/eBayISAPI.dll?MfcISAPICommand=MakeBid&uiid=1859999246&co_partnerid=2&fb=2&item=" + itemNumber.Text + "&maxbid=" + (double.Parse(maxBid.Text)) + "&Ctn=Continue");
+                    startInfo.WindowStyle = ProcessWindowStyle.Maximized;
+                    process.StartInfo = startInfo;
+                    process.Start();
+                }
+                catch
+                {
+                    MessageBox.Show("Invalid input.");
+                }
 
                 Thread.Sleep(5000);
 
@@ -531,6 +564,7 @@ namespace eBay_Sniper
                 MessageBox.Show("Bid confirmation button placed at " + button.X + ", " + button.Y);
 
                 addItem.Enabled = true;
+                Import.Enabled = true;
             }
         }
 
