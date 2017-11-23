@@ -21,7 +21,9 @@ namespace eBay_Sniper
     {
         List<string> itemIds = new List<string>();
         List<double> maxBids = new List<double>();
+
         List<string> items = new List<string>();
+
         List<string> finishedIDs = new List<string>();
         string itemsString = "";
 
@@ -32,29 +34,17 @@ namespace eBay_Sniper
             InitializeComponent();
         }
 
-        private void getUpdates_Tick(object sender, EventArgs e)
+        public void updateList()
         {
             //Adds new data to a formatted string, which is added to the main list
-            string idString;
-            try
+            string idString = "";
+            for (int ic = 0; ic < itemIds.Count; ic++)
             {
-                idString = "";
-                foreach (string id in itemIds)
-                {
-                    if (id == "")
-                        continue;
-
-                    idString += id + ",";
-                }
-                idString = idString.Substring(0, idString.Length - 1);
-            }
-            catch
-            {
-                return;
+                idString += itemIds[ic] + ",";
             }
 
             string callName;
-            if (itemIds.Count == 1)
+            if (itemIds.Count < 1)
             {
                 callName = "GetSingleItem";
             }
@@ -63,58 +53,65 @@ namespace eBay_Sniper
                 callName = "GetMultipleItems";
             }
 
-            XmlDocument doc = new XmlDocument();
-            doc.Load("http://open.api.ebay.com/shopping?callname=" + callName + "&responseencoding=XML&appid=GregoryM-mailer-PRD-a45ed6035-97c14545&siteid=0&version=967&ItemID=" + idString);
-            //Gets item information to find end time
-
-            XmlNodeList nodes;
-            if (callName == "GetSingleItem")
+            if (itemIds.Count != 0)
             {
-                nodes = doc.GetElementsByTagName("GetSingleItemResponse");
+                XmlDocument doc = new XmlDocument();
+                doc.Load("http://open.api.ebay.com/shopping?callname=" + callName + "&responseencoding=XML&appid=GregoryM-mailer-PRD-a45ed6035-97c14545&siteid=0&version=967&ItemID=" + idString);
+                //Gets item information to find end time
+
+                XmlNodeList nodes;
+                if (callName == "GetSingleItem")
+                {
+                    nodes = doc.GetElementsByTagName("GetSingleItemResponse");
+                }
+                else
+                {
+                    nodes = ((XmlElement)doc.GetElementsByTagName("GetMultipleItemsResponse")[0]).GetElementsByTagName("Item");
+                }
+
+                items.Clear();
+                itemTable.Items.Clear();
+                int i = 0;
+                foreach (XmlElement item in nodes)
+                {
+                    string endTime = item.GetElementsByTagName("EndTime")[0].InnerText;
+                    string[] components1 = endTime.Split('T');
+                    string[] date = components1[0].Split('-');
+                    string[] time = components1[1].Split(':');
+                    time[2] = time[2].Substring(0, time[2].IndexOf('.'));
+                    DateTime endTimeDt = new DateTime(int.Parse(date[0]), int.Parse(date[1]), int.Parse(date[2]), int.Parse(time[0]), int.Parse(time[1]), int.Parse(time[2]));
+                    endTimeDt = endTimeDt.AddHours(-8);
+                    endTimeDt = endTimeDt.AddSeconds(2);
+
+                    DateTime yes = DateTime.Now;
+                    yes = yes.AddSeconds(30);
+
+                    string dateTime = endTimeDt.Month + "/" + endTimeDt.Day + "/" + endTimeDt.Year + " " + endTimeDt.Hour + ":" + endTimeDt.Minute + ":" + endTimeDt.Second;
+                    //string dateTime = yes.Month + "/" + yes.Day + "/" + yes.Year + " " + yes.Hour + ":" + yes.Minute + ":" + yes.Second;
+
+                    TimeSpan span = endTimeDt - DateTime.Now;
+                    //TimeSpan span = yes - DateTime.Now;
+                    string timeLeft = span.Days + "d " + span.Hours + "h " + span.Minutes + "m " + span.Seconds + "s";
+
+                    StringBuilder sb = new StringBuilder(item.GetElementsByTagName("Title")[0].InnerText);
+                    sb.Replace(',', ' ');
+                    string item2 = sb.ToString();
+
+                    //MessageBox.Show(maxBids[i].ToString());
+                    items.Add(item2 + "," + item.GetElementsByTagName("ItemID")[0].InnerText + "," + item.GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText + "," + endTimeDt.Year + "," + endTimeDt.Month + "," + endTimeDt.Day + "," + endTimeDt.Hour + "," + endTimeDt.Minute + "," + endTimeDt.Second + "," + maxBids[i]);
+                    //items.Add(item2 + "," + item.GetElementsByTagName("ItemID")[0].InnerText + "," + item.GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText + "," + yes.Year + "," + yes.Month + "," + yes.Day + "," + yes.Hour + "," + yes.Minute + "," + yes.Second + "," + maxBid.Text);
+                    itemsString += items[items.Count - 1] + ";";
+
+                    ListViewItem itemToAdd = new ListViewItem(new string[] { item2, item.GetElementsByTagName("ItemID")[0].InnerText, item.GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText, dateTime, maxBids[i].ToString() });
+                    itemTable.Items.Add(itemToAdd);
+
+                    i++;
+                }
             }
-            else
-            {
-                nodes = ((XmlElement)doc.GetElementsByTagName("GetMultipleItemsResponse")[0]).GetElementsByTagName("Item");
-            }
 
-            items.Clear();
-            int i = 0;
-            foreach (XmlElement item in nodes)
-            {
-                string endTime = item.GetElementsByTagName("EndTime")[0].InnerText;
-                string[] components1 = endTime.Split('T');
-                string[] date = components1[0].Split('-');
-                string[] time = components1[1].Split(':');
-                time[2] = time[2].Substring(0, time[2].IndexOf('.'));
-                DateTime endTimeDt = new DateTime(int.Parse(date[0]), int.Parse(date[1]), int.Parse(date[2]), int.Parse(time[0]), int.Parse(time[1]), int.Parse(time[2]));
-                endTimeDt = endTimeDt.AddHours(-8);
-                endTimeDt = endTimeDt.AddSeconds(2);
 
-                DateTime yes = DateTime.Now;
-                yes = yes.AddSeconds(10);
-
-                string dateTime = endTimeDt.Month + "/" + endTimeDt.Day + "/" + endTimeDt.Year + " " + endTimeDt.Hour + ":" + endTimeDt.Minute + ":" + endTimeDt.Second;
-                //string dateTime = yes.Month + "/" + yes.Day + "/" + yes.Year + " " + yes.Hour + ":" + yes.Minute + ":" + yes.Second;
-
-                TimeSpan span = endTimeDt - DateTime.Now;
-                string timeLeft = span.Days + "d " + span.Hours + "h " + span.Minutes + "m " + span.Seconds + "s";
-
-                StringBuilder sb = new StringBuilder(item.GetElementsByTagName("Title")[0].InnerText);
-                sb.Replace(',', ' ');
-                string item2 = sb.ToString();
-
-                //MessageBox.Show(maxBids[i].ToString());
-                items.Add(item2 + "," + item.GetElementsByTagName("ItemID")[0].InnerText + "," + item.GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText + "," + endTimeDt.Year + "," + endTimeDt.Month + "," + endTimeDt.Day + "," + endTimeDt.Hour + "," + endTimeDt.Minute + "," + endTimeDt.Second + "," + maxBids[i]);
-                itemsString += items[items.Count - 1] + ";";
-                //items.Add(item2 + "," + item.GetElementsByTagName("ItemID")[0].InnerText + "," + item.GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText + "," + yes.Year + "," + yes.Month + "," + yes.Day + "," + yes.Hour + "," + yes.Minute + "," + yes.Second + "," + maxBid.Text);
-
-                updateTime_Tick(updateTime, new EventArgs());
-                //Compiles i`nformation string
-
-                i++;
-            }
-
-            Log("Added item number " + itemIds[itemIds.Count - 1]);
+            if (itemIds.Count != 0)
+                Log("Added item number " + itemIds[itemIds.Count - 1]);
         }
 
         private void MultipleAuctions_FormClosing(object sender, FormClosingEventArgs e)
@@ -126,130 +123,90 @@ namespace eBay_Sniper
         {
             itemIds.Add(itemNumber.Text);
             maxBids.Add(double.Parse(maxBid.Text));
-            getUpdates_Tick(getInfo, new EventArgs());
+            updateList();
         }
 
         bool okayToBid = true;
+        string closestID = "";
+        string closestSpan = "";
         private void updateTime_Tick(object sender, EventArgs e)
         {
-            ListView.SelectedIndexCollection index = itemTable.SelectedIndices;
-
             DateTime closestTime = new DateTime(9999, 12, 31, 23, 59, 59);
             try
             {
-                foreach (string item in items)
+                for (int i = 0; i < items.Count; i++)
                 {
-                    string[] components = item.Split(',');
+                    string[] components = items[i].Split(',');
                     DateTime endTime = new DateTime(int.Parse(components[3]), int.Parse(components[4]), int.Parse(components[5]), int.Parse(components[6]), int.Parse(components[7]), int.Parse(components[8]));
-                    
+
                     TimeSpan span = endTime - DateTime.Now;
                     TimeSpan closest = closestTime - DateTime.Now;
 
                     if (span < closest)
                     {
                         closestTime = endTime;
-                        //moveItemToTop(components[1]);
-                    }
-                }
-            }
-            catch { }
+                        closestID = items[i].Split(',')[1];
+                        closestSpan = span.Days + "d " + span.Hours + "h " + span.Minutes + "m " + span.Seconds + "s";
+                        moveItemToTop(items[i]);
+                        Log("Set closest item to " + components[1] + " at " + closestSpan);
 
-            //Finds the listing that is ending soonest and reorganizes the list accordingly
-
-            try
-            {
-                int i = 0;
-                foreach (string item in items)
-                {
-                    string[] components = item.Split(',');
-
-                    DateTime endTime = new DateTime(int.Parse(components[3]), int.Parse(components[4]), int.Parse(components[5]), int.Parse(components[6]), int.Parse(components[7]), int.Parse(components[8]));
-                    //endTime = endTime.AddHours(-8);
-                    string dateTime = endTime.Month + "/" + endTime.Day + "/" + endTime.Year + " " + endTime.Hour + ":" + endTime.Minute + ":" + endTime.Second;
-                    TimeSpan timeLeft = endTime - DateTime.Now;
-                    string timeLeft2 = timeLeft.Days + "d " + timeLeft.Hours + "h " + timeLeft.Minutes + "m " + timeLeft.Seconds + "s";
-                    string[] row = { components[0], components[1], GetCurrentPrice(components[1]), dateTime, timeLeft2, components[9] };
-                    var listViewItem = new ListViewItem(row);
-
-                    if (timeLeft.TotalMilliseconds <= (int)numericUpDown1.Value && timeLeft.TotalMilliseconds >= 0 && !finishedIDs.Contains(components[1]))
-                    {
-                        if (okayToBid)
+                        if (span.TotalMinutes < 10)
                         {
-                            BidOnItem(components[1], components[components.Length - 1]); //Sends bid request
-                            Invoke(new Action(() => { itemTable.Items.Remove(listViewItem); }));
-                            items.Remove(item);
-                        }
-                    }
-
-                    if (timeLeft.TotalMilliseconds > 1000)
-                    {
-                        int indexToChange = -1;
-
-                        try
-                        {
-                            Invoke(new Action(() => {
-                                for (int q = 0; q < itemTable.Items.Count; q++)
-                                {
-                                    ListViewItem item4 = itemTable.Items[i];
-                                    string itemNumberOfItem = item4.SubItems[1].Text;
-
-                                    if (itemNumberOfItem == components[1])
-                                    {
-                                        indexToChange = i;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        indexToChange = -1;
-                                    }
-                                }
-                            }));
-                        }
-                        catch
-                        {
-                            indexToChange = -1;
-                        }
-
-                        if (indexToChange >= 0)
-                        {
-                            Invoke(new Action(() => { itemTable.Items[indexToChange] = listViewItem; })); //Controls addition or removal of items from list
+                            label1.ForeColor = Color.Red;
                         }
                         else
                         {
-                            Invoke(new Action(() => { itemTable.Items.Add(listViewItem); }));
+                            label1.ForeColor = Color.Black;
+                        }
+
+                        if (span.TotalMilliseconds < (double)numericUpDown1.Value)
+                        {
+                            BidOnItem(components[1], components[9]);
+                            itemIds.Remove(components[1]);
+                            maxBids.Remove(double.Parse(components[9]));
+                            items.Remove(items[i]);
+                            RemoveItemFromTable(components[1]);
+                            closestTime = new DateTime(9999, 12, 31, 23, 59, 59);
+                            closestSpan = null;
+                            closestID = "";
+                            label1.Text = "Next Upcoming Auction:";
+                            label1.ForeColor = Color.Black;
                         }
                     }
-                    else
-                    {
-                        Invoke(new Action(() => { itemTable.Items.Remove(listViewItem); }));
-                        items.Remove(item);
-                    }
-
-                    i++;
                 }
             }
             catch (Exception ex)
             {
-                //MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.Message);
+            }
+
+            if (closestID == "" || closestSpan == "")
+            {
+                label1.Text = "Next Upcoming Auction:";
+                label1.ForeColor = Color.Black;
+            }
+            else
+            {
+                label1.Text = "Next Upcoming Auction: " + closestID + " in " + closestSpan;
+            }
+        }
+
+        public void RemoveItemFromTable(string ID)
+        {
+            for (int i = 0; i < itemTable.Items.Count; i++)
+            {
+                if (itemTable.Items[i].SubItems[1].Text == ID)
+                {
+                    itemTable.Items.Remove(itemTable.Items[i]);
+                }
             }
         }
 
         public void moveItemToTop(string iID)
         {
             //Moves item to the top of the list
-            int index = 0;
-            string itemToRemove = "";
-            foreach (string i in items)
-            {
-                if (i.Contains(iID))
-                {
-                    index = items.IndexOf(i);
-                    itemToRemove = i;
-                }
-            }
-
-            items.Remove(itemToRemove);
-            items.Insert(0, itemToRemove);
+            items.Remove(iID);
+            items.Insert(0, iID);
         }
 
         private void checkTimes_Tick(object sender, EventArgs e)
@@ -433,6 +390,15 @@ namespace eBay_Sniper
                         {
                             itemTable.Items.Remove(itemTable.Items[q]);
                             items.RemoveAt(i);
+                            int index = itemIds.IndexOf(itemNumber.Text);
+                            itemIds.Remove(itemNumber.Text);
+                            maxBids.RemoveAt(index);
+
+                            if (closestID == itemNumber.Text)
+                            {
+                                label1.Text = "Next Upcoming Auction:";
+                                label1.ForeColor = Color.Black;
+                            }
                         }
                     }
 
@@ -454,31 +420,30 @@ namespace eBay_Sniper
 
                 string[] lines = data.Split('\n');
                 lines[0] = "";
-                foreach (string s in lines)
+                for (int i = 0; i < lines.Length; i++)
                 {
                     try
                     {
-                        if (s == "")
+                        if (lines[i] == "")
                             continue;
 
-                        string[] comp = s.Split(',');
-                        itemNumber.Text = comp[0];
+                        string[] comp = lines[i].Split(',');
+                        itemIds.Add(comp[0]);
 
                         if (comp[1].Contains("\r"))
                         {
-                            maxBid.Text = comp[1].Substring(0, comp[1].Length - 1);
+                            maxBids.Add(double.Parse(comp[1].Substring(0, comp[1].Length - 1)));
                         }
                         else
                         {
-                            maxBid.Text = comp[1];
+                            maxBids.Add(double.Parse(comp[1]));
                         }
 
                         //MessageBox.Show(itemNumber.Text + " " + maxBid.Text);
-                        addItem_Click(addItem, new EventArgs());
                     }
                     catch
                     {
-                        MessageBox.Show("Failed to add item " + s);
+                        MessageBox.Show("Failed to add item " + lines[i]);
                         continue; //first line headings
                     }
                 }
@@ -514,12 +479,12 @@ namespace eBay_Sniper
 
         private void MultipleAuctions_Load(object sender, EventArgs e)
         {
-            System.Timers.Timer timer = new System.Timers.Timer(200);
+            //System.Timers.Timer timer = new System.Timers.Timer(2500);
 
             // Hook up the Elapsed event for the timer.
-            timer.Elapsed += new ElapsedEventHandler(updateTime_Tick);
+            //timer.Elapsed += new ElapsedEventHandler(updateTime_Tick);
 
-            timer.Enabled = true;
+            //timer.Enabled = true;
         }
 
         private void viewLog_Click(object sender, EventArgs e)
@@ -570,5 +535,10 @@ namespace eBay_Sniper
 
         [DllImport("user32.dll")]
         static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        private void update(object sender, EventArgs e)
+        {
+            updateList();
+        }
     }
 }
