@@ -20,3 +20,5 @@ C:\Users\ethan\Documents\Visual Studio 2017\Projects\eBay-Sniper\eBay Sniper\obj
 C:\Users\ethan\Documents\Visual Studio 2017\Projects\eBay-Sniper\eBay Sniper\obj\Debug\eBay_Sniper.Menu.resources
 C:\Users\ethan\Documents\Visual Studio 2017\Projects\eBay-Sniper\eBay Sniper\obj\Debug\eBay_Sniper.MultipleAuctions.resources
 C:\Users\ethan\Documents\Visual Studio 2017\Projects\eBay-Sniper\eBay Sniper\obj\Debug\eBay Sniper.csprojResolveAssemblyReference.cache
+C:\Users\ethan\Documents\Visual Studio 2015\Projects\eBay Sniper\eBay Sniper\obj\Debug\eBay_Sniper.Menu.resources
+C:\Users\ethan\Documents\Visual Studio 2015\Projects\eBay Sniper\eBay Sniper\obj\Debug\eBay_Sniper.MultipleAuctions.resources

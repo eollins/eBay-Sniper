@@ -35,23 +35,21 @@
             this.currentPrice = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.endTime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.bid = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.logIn = new System.Windows.Forms.Button();
             this.Import = new System.Windows.Forms.Button();
             this.addItem = new System.Windows.Forms.Button();
             this.removeItem = new System.Windows.Forms.Button();
             this.webBrowser1 = new System.Windows.Forms.WebBrowser();
-            this.getInfo = new System.Windows.Forms.Timer(this.components);
-            this.updateTime = new System.Windows.Forms.Timer(this.components);
-            this.checkTimes = new System.Windows.Forms.Timer(this.components);
-            this.checkWebpage = new System.Windows.Forms.Timer(this.components);
-            this.openCSV = new System.Windows.Forms.OpenFileDialog();
             this.maxBid = new System.Windows.Forms.TextBox();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.viewLog = new System.Windows.Forms.Button();
             this.itemNumber = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.olderLogs = new System.Windows.Forms.Button();
+            this.Calibrate = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+            this.updateTable = new System.Windows.Forms.Timer(this.components);
+            this.updateInformation = new System.Windows.Forms.Timer(this.components);
+            this.checkForEndingAuction = new System.Windows.Forms.Timer(this.components);
+            this.openCSV = new System.Windows.Forms.OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -74,7 +72,7 @@
             // Title
             // 
             this.Title.Text = "Item Title";
-            this.Title.Width = 172;
+            this.Title.Width = 299;
             // 
             // itemID
             // 
@@ -99,20 +97,10 @@
             this.bid.Text = "Bid";
             this.bid.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // logIn
-            // 
-            this.logIn.Location = new System.Drawing.Point(13, 522);
-            this.logIn.Name = "logIn";
-            this.logIn.Size = new System.Drawing.Size(122, 56);
-            this.logIn.TabIndex = 0;
-            this.logIn.Text = "Log In";
-            this.logIn.UseVisualStyleBackColor = true;
-            this.logIn.Click += new System.EventHandler(this.logIn_Click);
-            // 
             // Import
             // 
             this.Import.Enabled = false;
-            this.Import.Location = new System.Drawing.Point(141, 522);
+            this.Import.Location = new System.Drawing.Point(13, 522);
             this.Import.Name = "Import";
             this.Import.Size = new System.Drawing.Size(122, 30);
             this.Import.TabIndex = 1;
@@ -123,9 +111,9 @@
             // addItem
             // 
             this.addItem.Enabled = false;
-            this.addItem.Location = new System.Drawing.Point(423, 550);
+            this.addItem.Location = new System.Drawing.Point(295, 523);
             this.addItem.Name = "addItem";
-            this.addItem.Size = new System.Drawing.Size(60, 28);
+            this.addItem.Size = new System.Drawing.Size(60, 55);
             this.addItem.TabIndex = 5;
             this.addItem.Text = "Add Item";
             this.addItem.UseVisualStyleBackColor = true;
@@ -133,14 +121,12 @@
             // 
             // removeItem
             // 
-            this.removeItem.Enabled = false;
-            this.removeItem.Location = new System.Drawing.Point(489, 550);
+            this.removeItem.Location = new System.Drawing.Point(361, 523);
             this.removeItem.Name = "removeItem";
-            this.removeItem.Size = new System.Drawing.Size(71, 28);
+            this.removeItem.Size = new System.Drawing.Size(71, 55);
             this.removeItem.TabIndex = 6;
             this.removeItem.Text = "Clear Items";
             this.removeItem.UseVisualStyleBackColor = true;
-            this.removeItem.TextChanged += new System.EventHandler(this.removeItem_TextChanged);
             this.removeItem.Click += new System.EventHandler(this.removeItem_Click);
             // 
             // webBrowser1
@@ -151,40 +137,10 @@
             this.webBrowser1.ScriptErrorsSuppressed = true;
             this.webBrowser1.Size = new System.Drawing.Size(296, 502);
             this.webBrowser1.TabIndex = 7;
-            this.webBrowser1.Navigated += new System.Windows.Forms.WebBrowserNavigatedEventHandler(this.webBrowser1_Navigated);
-            // 
-            // getInfo
-            // 
-            this.getInfo.Enabled = true;
-            this.getInfo.Interval = 1000;
-            this.getInfo.Tick += new System.EventHandler(this.update);
-            // 
-            // updateTime
-            // 
-            this.updateTime.Enabled = true;
-            this.updateTime.Interval = 200;
-            this.updateTime.Tick += new System.EventHandler(this.updateTime_Tick);
-            // 
-            // checkTimes
-            // 
-            this.checkTimes.Interval = 200;
-            this.checkTimes.Tick += new System.EventHandler(this.updateTime_Tick);
-            // 
-            // checkWebpage
-            // 
-            this.checkWebpage.Enabled = true;
-            this.checkWebpage.Interval = 150;
-            this.checkWebpage.Tick += new System.EventHandler(this.checkWebpage_Tick);
-            // 
-            // openCSV
-            // 
-            this.openCSV.Filter = "CSV files|*.csv";
-            this.openCSV.Title = "Open Spreadsheet";
             // 
             // maxBid
             // 
-            this.maxBid.Enabled = false;
-            this.maxBid.Location = new System.Drawing.Point(285, 523);
+            this.maxBid.Location = new System.Drawing.Point(157, 523);
             this.maxBid.Name = "maxBid";
             this.maxBid.Size = new System.Drawing.Size(132, 20);
             this.maxBid.TabIndex = 3;
@@ -192,9 +148,9 @@
             // 
             // numericUpDown1
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(141, 558);
+            this.numericUpDown1.Location = new System.Drawing.Point(13, 558);
             this.numericUpDown1.Maximum = new decimal(new int[] {
-            30000,
+            99999999,
             0,
             0,
             0});
@@ -212,41 +168,39 @@
             this.viewLog.Location = new System.Drawing.Point(566, 522);
             this.viewLog.Name = "viewLog";
             this.viewLog.Size = new System.Drawing.Size(118, 30);
-            this.viewLog.TabIndex = 7;
+            this.viewLog.TabIndex = 8;
             this.viewLog.Text = "Today\'s Log";
             this.viewLog.UseVisualStyleBackColor = true;
             this.viewLog.Click += new System.EventHandler(this.viewLog_Click);
             // 
             // itemNumber
             // 
-            this.itemNumber.Enabled = false;
             this.itemNumber.Font = new System.Drawing.Font("Calibri", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.itemNumber.Location = new System.Drawing.Point(285, 550);
+            this.itemNumber.Location = new System.Drawing.Point(157, 550);
             this.itemNumber.Name = "itemNumber";
             this.itemNumber.Size = new System.Drawing.Size(132, 27);
             this.itemNumber.TabIndex = 4;
             this.itemNumber.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // button1
+            // olderLogs
             // 
-            this.button1.Location = new System.Drawing.Point(566, 553);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(118, 25);
-            this.button1.TabIndex = 8;
-            this.button1.Text = "Older Logs";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.olderLogs.Location = new System.Drawing.Point(566, 553);
+            this.olderLogs.Name = "olderLogs";
+            this.olderLogs.Size = new System.Drawing.Size(118, 25);
+            this.olderLogs.TabIndex = 9;
+            this.olderLogs.Text = "Older Logs";
+            this.olderLogs.UseVisualStyleBackColor = true;
+            this.olderLogs.Click += new System.EventHandler(this.olderLogs_Click);
             // 
-            // button2
+            // Calibrate
             // 
-            this.button2.Enabled = false;
-            this.button2.Location = new System.Drawing.Point(423, 523);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(137, 21);
-            this.button2.TabIndex = 9;
-            this.button2.Text = "Calibrate";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.Calibrate.Location = new System.Drawing.Point(438, 523);
+            this.Calibrate.Name = "Calibrate";
+            this.Calibrate.Size = new System.Drawing.Size(122, 54);
+            this.Calibrate.TabIndex = 7;
+            this.Calibrate.Text = "Calibrate";
+            this.Calibrate.UseVisualStyleBackColor = true;
+            this.Calibrate.Click += new System.EventHandler(this.Calibrate_Click);
             // 
             // label1
             // 
@@ -258,14 +212,29 @@
             this.label1.TabIndex = 10;
             this.label1.Text = "Next Upcoming Auction:";
             // 
+            // updateTable
+            // 
+            this.updateTable.Interval = 2500;
+            this.updateTable.Tick += new System.EventHandler(this.updateTable_Tick);
+            // 
+            // updateInformation
+            // 
+            this.updateInformation.Interval = 1000;
+            this.updateInformation.Tick += new System.EventHandler(this.updateInformation_Tick);
+            // 
+            // checkForEndingAuction
+            // 
+            this.checkForEndingAuction.Interval = 200;
+            this.checkForEndingAuction.Tick += new System.EventHandler(this.checkForEndingAuction_Tick);
+            // 
             // MultipleAuctions
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(697, 590);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.Calibrate);
+            this.Controls.Add(this.olderLogs);
             this.Controls.Add(this.itemNumber);
             this.Controls.Add(this.viewLog);
             this.Controls.Add(this.numericUpDown1);
@@ -274,13 +243,11 @@
             this.Controls.Add(this.removeItem);
             this.Controls.Add(this.addItem);
             this.Controls.Add(this.Import);
-            this.Controls.Add(this.logIn);
             this.Controls.Add(this.itemTable);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.Name = "MultipleAuctions";
             this.Text = "eBay Browser Sniper";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MultipleAuctions_FormClosing);
             this.Load += new System.EventHandler(this.MultipleAuctions_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             this.ResumeLayout(false);
@@ -294,24 +261,22 @@
         private System.Windows.Forms.ColumnHeader itemID;
         private System.Windows.Forms.ColumnHeader currentPrice;
         private System.Windows.Forms.ColumnHeader endTime;
-        private System.Windows.Forms.Button logIn;
         private System.Windows.Forms.Button Import;
         private System.Windows.Forms.Button addItem;
         private System.Windows.Forms.Button removeItem;
         private System.Windows.Forms.WebBrowser webBrowser1;
-        private System.Windows.Forms.Timer getInfo;
         private System.Windows.Forms.ColumnHeader Title;
-        private System.Windows.Forms.Timer updateTime;
-        private System.Windows.Forms.Timer checkTimes;
-        private System.Windows.Forms.Timer checkWebpage;
-        private System.Windows.Forms.OpenFileDialog openCSV;
         private System.Windows.Forms.TextBox maxBid;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.ColumnHeader bid;
         private System.Windows.Forms.Button viewLog;
         private System.Windows.Forms.TextBox itemNumber;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button olderLogs;
+        private System.Windows.Forms.Button Calibrate;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Timer updateTable;
+        private System.Windows.Forms.Timer updateInformation;
+        private System.Windows.Forms.Timer checkForEndingAuction;
+        private System.Windows.Forms.OpenFileDialog openCSV;
     }
 }

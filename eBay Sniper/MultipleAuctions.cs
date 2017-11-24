@@ -19,62 +19,76 @@ namespace eBay_Sniper
 {
     public partial class MultipleAuctions : Form
     {
-        List<string> itemIds = new List<string>();
-        List<double> maxBids = new List<double>();
-
-        List<string> items = new List<string>();
-
-        List<string> finishedIDs = new List<string>();
-        string itemsString = "";
-
-        Point button = new Point(0, 0);
-
+        Point buttonCoordinates = new Point(0, 0);
+        List<ItemInformation> items = new List<ItemInformation>();
         public MultipleAuctions()
         {
             InitializeComponent();
         }
 
-        public void updateList()
+        private void addItem_Click(object sender, EventArgs e)
         {
-            //Adds new data to a formatted string, which is added to the main list
-            string idString = "";
-            for (int ic = 0; ic < itemIds.Count; ic++)
-            {
-                idString += itemIds[ic] + ",";
-            }
+            XmlDocument doc = new XmlDocument();
+            doc.Load("http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=XML&appid=GregoryM-mailer-PRD-a45ed6035-97c14545&siteid=0&version=967&ItemID=" + itemNumber.Text);
 
-            string callName;
-            if (itemIds.Count < 1)
-            {
-                callName = "GetSingleItem";
-            }
-            else
-            {
-                callName = "GetMultipleItems";
-            }
+            XmlNodeList nodes = doc.GetElementsByTagName("GetSingleItemResponse");
+            XmlElement ele = (XmlElement)nodes[0];
 
-            if (itemIds.Count != 0)
-            {
-                XmlDocument doc = new XmlDocument();
-                doc.Load("http://open.api.ebay.com/shopping?callname=" + callName + "&responseencoding=XML&appid=GregoryM-mailer-PRD-a45ed6035-97c14545&siteid=0&version=967&ItemID=" + idString);
-                //Gets item information to find end time
+            string endTime = ele.GetElementsByTagName("EndTime")[0].InnerText;
+            string[] components1 = endTime.Split('T');
+            string[] date = components1[0].Split('-');
+            string[] time = components1[1].Split(':');
+            time[2] = time[2].Substring(0, time[2].IndexOf('.'));
+            DateTime endTimeDt = new DateTime(int.Parse(date[0]), int.Parse(date[1]), int.Parse(date[2]), int.Parse(time[0]), int.Parse(time[1]), int.Parse(time[2]));
+            endTimeDt = endTimeDt.AddHours(-8);
+            endTimeDt = endTimeDt.AddSeconds(2);
 
-                XmlNodeList nodes;
-                if (callName == "GetSingleItem")
+            ItemInformation info = new ItemInformation();
+            info.Name = ele.GetElementsByTagName("Title")[0].InnerText;
+            info.ItemNumber = itemNumber.Text;
+            info.Price = ele.GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText;
+            info.EndTime = endTimeDt;
+            info.Bid = maxBid.Text;
+
+            items.Add(info);
+
+            itemNumber.Text = "";
+            maxBid.Text = "";
+
+            Log("Added item number " + info.ItemNumber);
+        }
+
+        private void removeItem_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < items.Count; i++)
+            {
+                if (items[i].ItemNumber == itemNumber.Text)
                 {
-                    nodes = doc.GetElementsByTagName("GetSingleItemResponse");
+                    items.RemoveAt(i);
+                    itemNumber.Text = "";
+                    maxBid.Text = "";
+                    label1.Text = "Next Upcoming Auction:";
+                    label1.ForeColor = Color.Black;
+                    Log("Removed item " + items[i].ItemNumber);
                 }
-                else
-                {
-                    nodes = ((XmlElement)doc.GetElementsByTagName("GetMultipleItemsResponse")[0]).GetElementsByTagName("Item");
-                }
+            }
+        }
 
-                items.Clear();
-                itemTable.Items.Clear();
-                int i = 0;
-                foreach (XmlElement item in nodes)
+        private void updateInformation_Tick(object sender, EventArgs e)
+        {
+            if (items.Count == 0)
+                return;
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                try
                 {
-                    string endTime = item.GetElementsByTagName("EndTime")[0].InnerText;
+                    XmlDocument doc = new XmlDocument();
+                    doc.Load("http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=XML&appid=GregoryM-mailer-PRD-a45ed6035-97c14545&siteid=0&version=967&ItemID=" + items[i].ItemNumber);
+                    XmlNodeList nodes = doc.GetElementsByTagName("GetSingleItemResponse");
+                    XmlElement ele = (XmlElement)nodes[0];
+
+                    string endTime = ele.GetElementsByTagName("EndTime")[0].InnerText;
                     string[] components1 = endTime.Split('T');
                     string[] date = components1[0].Split('-');
                     string[] time = components1[1].Split(':');
@@ -83,228 +97,113 @@ namespace eBay_Sniper
                     endTimeDt = endTimeDt.AddHours(-8);
                     endTimeDt = endTimeDt.AddSeconds(2);
 
-                    DateTime yes = DateTime.Now;
-                    yes = yes.AddSeconds(30);
-
-                    string dateTime = endTimeDt.Month + "/" + endTimeDt.Day + "/" + endTimeDt.Year + " " + endTimeDt.Hour + ":" + endTimeDt.Minute + ":" + endTimeDt.Second;
-                    //string dateTime = yes.Month + "/" + yes.Day + "/" + yes.Year + " " + yes.Hour + ":" + yes.Minute + ":" + yes.Second;
-
-                    TimeSpan span = endTimeDt - DateTime.Now;
-                    //TimeSpan span = yes - DateTime.Now;
-                    string timeLeft = span.Days + "d " + span.Hours + "h " + span.Minutes + "m " + span.Seconds + "s";
-
-                    StringBuilder sb = new StringBuilder(item.GetElementsByTagName("Title")[0].InnerText);
-                    sb.Replace(',', ' ');
-                    string item2 = sb.ToString();
-
-                    //MessageBox.Show(maxBids[i].ToString());
-                    items.Add(item2 + "," + item.GetElementsByTagName("ItemID")[0].InnerText + "," + item.GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText + "," + endTimeDt.Year + "," + endTimeDt.Month + "," + endTimeDt.Day + "," + endTimeDt.Hour + "," + endTimeDt.Minute + "," + endTimeDt.Second + "," + maxBids[i]);
-                    //items.Add(item2 + "," + item.GetElementsByTagName("ItemID")[0].InnerText + "," + item.GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText + "," + yes.Year + "," + yes.Month + "," + yes.Day + "," + yes.Hour + "," + yes.Minute + "," + yes.Second + "," + maxBid.Text);
-                    itemsString += items[items.Count - 1] + ";";
-
-                    ListViewItem itemToAdd = new ListViewItem(new string[] { item2, item.GetElementsByTagName("ItemID")[0].InnerText, item.GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText, dateTime, maxBids[i].ToString() });
-                    itemTable.Items.Add(itemToAdd);
-
-                    i++;
+                    ItemInformation newInfo = new ItemInformation();
+                    newInfo.Name = ele.GetElementsByTagName("Title")[0].InnerText;
+                    newInfo.ItemNumber = items[i].ItemNumber;
+                    newInfo.Price = ele.GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText;
+                    newInfo.EndTime = endTimeDt;
+                    newInfo.Bid = items[i].Bid;
+                    items[i] = newInfo;
                 }
-            }
-
-
-            if (itemIds.Count != 0)
-                Log("Added item number " + itemIds[itemIds.Count - 1]);
-        }
-
-        private void MultipleAuctions_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            Application.Exit();
-        }
-
-        private void addItem_Click(object sender, EventArgs e)
-        {
-            itemIds.Add(itemNumber.Text);
-            maxBids.Add(double.Parse(maxBid.Text));
-            updateList();
-        }
-
-        bool okayToBid = true;
-        string closestID = "";
-        string closestSpan = "";
-        private void updateTime_Tick(object sender, EventArgs e)
-        {
-            DateTime closestTime = new DateTime(9999, 12, 31, 23, 59, 59);
-            try
-            {
-                for (int i = 0; i < items.Count; i++)
+                catch (Exception ex)
                 {
-                    string[] components = items[i].Split(',');
-                    DateTime endTime = new DateTime(int.Parse(components[3]), int.Parse(components[4]), int.Parse(components[5]), int.Parse(components[6]), int.Parse(components[7]), int.Parse(components[8]));
-
-                    TimeSpan span = endTime - DateTime.Now;
-                    TimeSpan closest = closestTime - DateTime.Now;
-
-                    if (span < closest)
-                    {
-                        closestTime = endTime;
-                        closestID = items[i].Split(',')[1];
-                        closestSpan = span.Days + "d " + span.Hours + "h " + span.Minutes + "m " + span.Seconds + "s";
-                        moveItemToTop(items[i]);
-                        Log("Set closest item to " + components[1] + " at " + closestSpan);
-
-                        if (span.TotalMinutes < 10)
-                        {
-                            label1.ForeColor = Color.Red;
-                        }
-                        else
-                        {
-                            label1.ForeColor = Color.Black;
-                        }
-
-                        if (span.TotalMilliseconds < (double)numericUpDown1.Value)
-                        {
-                            BidOnItem(components[1], components[9]);
-                            itemIds.Remove(components[1]);
-                            maxBids.Remove(double.Parse(components[9]));
-                            items.Remove(items[i]);
-                            RemoveItemFromTable(components[1]);
-                            closestTime = new DateTime(9999, 12, 31, 23, 59, 59);
-                            closestSpan = null;
-                            closestID = "";
-                            label1.Text = "Next Upcoming Auction:";
-                            label1.ForeColor = Color.Black;
-                        }
-                    }
+                    Log(ex.Message);
                 }
             }
-            catch (Exception ex)
+        }
+
+        private void updateTable_Tick(object sender, EventArgs e)
+        {
+            ListView.SelectedIndexCollection index = itemTable.SelectedIndices;
+            Invoke(new Action(() => { itemTable.Items.Clear(); }));
+            for (int i = 0; i < items.Count; i++)
             {
-                MessageBox.Show(ex.Message);
+                string[] row = { items[i].Name, items[i].ItemNumber, items[i].Price, ConvertToDateString(items[i].EndTime), items[i].Bid };
+                Invoke(new Action(() => { itemTable.Items.Add(new ListViewItem(row)); }));
             }
 
-            if (closestID == "" || closestSpan == "")
+            int count = 0;
+            Invoke(new Action(() => { count = index.Count; }));
+            if (count == 0)
+                return;
+
+            Invoke(new Action(() => { itemTable.Items[index[0]].Selected = true; }));
+        }
+
+        public string ConvertToDateString(DateTime dtToConvert)
+        {
+            return dtToConvert.Month + "/" + dtToConvert.Day + "/" + dtToConvert.Year + " " + dtToConvert.Hour + ":" + dtToConvert.Minute + ":" + dtToConvert.Second;
+        }
+
+        private void Import_Click(object sender, EventArgs e)
+        {
+            if (openCSV.ShowDialog() == DialogResult.OK)
             {
-                label1.Text = "Next Upcoming Auction:";
-                label1.ForeColor = Color.Black;
+                StreamReader reader = new StreamReader(openCSV.FileName);
+                string data = reader.ReadToEnd();
+                string[] lines = data.Split('\n');
+
+                for (int i = 1; i < lines.Length; i++)
+                {
+                    string[] components = lines[i].Split(',');
+                    itemNumber.Text = components[0];
+
+                    if (components[1].Contains("\r"))
+                    {
+                        maxBid.Text = components[1].Substring(0, components[1].Length - 1);
+                    }
+                    else
+                    {
+                        maxBid.Text = components[1];
+                    }
+
+                    addItem_Click(addItem, new EventArgs());
+                }
+
+                Log("Imported spreadsheet");
+            }
+        }
+
+        private void Calibrate_Click(object sender, EventArgs e)
+        {
+            if (itemNumber.Text == "" && maxBid.Text == "")
+            {
+                MessageBox.Show("Please enter valid example item information.");
+            }
+            else if (itemNumber.Text == "")
+            {
+                MessageBox.Show("Please enter a valid active item number.");
+            }
+            else if (maxBid.Text == "")
+            {
+                MessageBox.Show("Please enter a valid maximum bid amount.");
             }
             else
             {
-                label1.Text = "Next Upcoming Auction: " + closestID + " in " + closestSpan;
+                MessageBox.Show("An eBay confirmation page will be opened. Within five seconds, place your cursor over the \"Confirm Bid\" button.");
+
+                Process process = new Process();
+                ProcessStartInfo startInfo = new ProcessStartInfo("chrome", "https://offer.ebay.com/ws/eBayISAPI.dll?MfcISAPICommand=MakeBid&uiid=1859999246&co_partnerid=2&fb=2&item=" + itemNumber.Text + "&maxbid=" + (double.Parse(maxBid.Text)) + "&Ctn=Continue");
+                startInfo.WindowStyle = ProcessWindowStyle.Maximized;
+                process.StartInfo = startInfo;
+                process.Start();
+
+                Thread.Sleep(5000);
+
+                this.Activate();
+
+                buttonCoordinates = Cursor.Position;
+                MessageBox.Show("Bid confirmation button placed at " + buttonCoordinates.X + ", " + buttonCoordinates.Y);
+                addItem.Enabled = true;
+                Import.Enabled = true;
+
+                Log("Calibrated confirmation button to " + buttonCoordinates.X + ", " + buttonCoordinates.Y);
             }
         }
 
-        public void RemoveItemFromTable(string ID)
+        private void viewLog_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < itemTable.Items.Count; i++)
-            {
-                if (itemTable.Items[i].SubItems[1].Text == ID)
-                {
-                    itemTable.Items.Remove(itemTable.Items[i]);
-                }
-            }
-        }
-
-        public void moveItemToTop(string iID)
-        {
-            //Moves item to the top of the list
-            items.Remove(iID);
-            items.Insert(0, iID);
-        }
-
-        private void checkTimes_Tick(object sender, EventArgs e)
-        {
-
-        }
-
-        private void BidOnItem(string ID, string maxBid)
-        {
-            okayToBid = false;
-
-            //Cancels if the item has been bid on already
-            if (finishedIDs.Contains(ID))
-                return;
-
-            XmlDocument doc2 = new XmlDocument();
-            doc2.Load("http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=XML&appid=GregoryM-mailer-PRD-a45ed6035-97c14545&siteid=0&version=967&ItemID=" + ID + "&IncludeSelector=Details");
-            //Gets item information for current price
-
-            string price;
-
-            try
-            {
-                price = ((XmlElement)doc2.GetElementsByTagName("GetSingleItemResponse")[0]).GetElementsByTagName("MinimumToBid")[0].InnerText;
-            }
-            catch
-            {
-                price = ((XmlElement)((XmlElement)doc2.GetElementsByTagName("GetSingleItemResponse")[0]).GetElementsByTagName("Item")[0]).GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText;
-            }
-            //Finds the minimum price that needs to be bid
-
-            try
-            {
-                if (double.Parse(price) < double.Parse(maxBid) && !finishedIDs.Contains(ID))
-                {
-                    //If specified bid is eligible, sends hidden WebBrowser to a confirmation screen
-                    string finalPrice = maxBid;
-                    
-                    ProcessStartInfo startInfo = new ProcessStartInfo("chrome", "https://offer.ebay.com/ws/eBayISAPI.dll?MfcISAPICommand=MakeBid&uiid=1859999246&co_partnerid=2&fb=2&item=" + ID + "&maxbid=" + (double.Parse(maxBid)) + "&Ctn=Continue");
-                    startInfo.WindowStyle = ProcessWindowStyle.Maximized;
-                    Process.Start(startInfo);
-
-                    Thread.Sleep(1500);
-
-                    Cursor.Position = button;
-                    LeftMouseClick(button.X, button.Y);
-
-                    //SendKeys.Send("{ENTER}");
-                    finishedIDs.Add(ID);
-                    Log("Bid " + String.Format(maxBid, "C") + " on item number " + itemNumber.Text);
-                }
-                else
-                {
-                    //Logs failure of auctions whose current prices exceeded bid
-                    Log("Bid amount " + String.Format(maxBid, "C") + " exceeded requested bid of " + price + " on item number " + itemNumber.Text);
-                    finishedIDs.Add(ID);
-                }
-            }
-            catch
-            {
-                Log("Exception");
-            }
-
-            okayToBid = true;
-        }
-
-        //This is a replacement for Cursor.Position in WinForms
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        static extern bool SetCursorPos(int x, int y);
-
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        public static extern void mouse_event(int dwFlags, int dx, int dy, int cButtons, int dwExtraInfo);
-
-        public const int MOUSEEVENTF_LEFTDOWN = 0x02;
-        public const int MOUSEEVENTF_LEFTUP = 0x04;
-
-        //This simulates a left mouse click
-        public static void LeftMouseClick(int xpos, int ypos)
-        {
-            SetCursorPos(xpos, ypos);
-            mouse_event(MOUSEEVENTF_LEFTDOWN, xpos, ypos, 0, 0);
-            mouse_event(MOUSEEVENTF_LEFTUP, xpos, ypos, 0, 0);
-        }
-
-        private void logIn_Click(object sender, EventArgs e)
-        {
-            //Opens a sign in screen
-            new signIn().ShowDialog();
-            //Import.Enabled = true;
-            maxBid.Enabled = true;
-            itemNumber.Enabled = true;
-            //addItem.Enabled = true;
-            removeItem.Enabled = true;
-            logIn.Enabled = false;
-            viewLog.Enabled = true;
-            button2.Enabled = true;
-
-            Log("User logged in");
+            Process.Start("notepad", CurrentDatePath());
         }
 
         public void Log(string message)
@@ -339,206 +238,136 @@ namespace eBay_Sniper
             return @"Past Logs\auctionlog_" + DateTime.Now.Year + "-" + DateTime.Now.Month + "-" + DateTime.Now.Day + ".txt";
         }
 
-        private void webBrowser1_Navigated(object sender, WebBrowserNavigatedEventArgs e)
+        private void olderLogs_Click(object sender, EventArgs e)
         {
-            Log("Browser navigated to " + webBrowser1.Url.ToString());
+            Process.Start(@"Past Logs");
         }
+        
 
-        private void checkWebpage_Tick(object sender, EventArgs e)
+        ItemInformation closestItem = new ItemInformation();
+        DateTime endingTime = new DateTime();
+        private void checkForEndingAuction_Tick(object sender, EventArgs e)
         {
-            //try
-            //{
-            //    //Checks to see if confirmation screen is loaded
-            //    if (webBrowser1.Document.GetElementsByTagName("html")[0].InnerHtml.Contains("position:relative;"))
-            //    {
-            //        try
-            //        {
-            //            HtmlDocument doc3 = webBrowser1.Document;
-            //            HtmlElement head2 = doc3.GetElementsByTagName("html")[0];
-            //            HtmlElement s2 = doc3.CreateElement("script");
-            //            s2.SetAttribute("text", "function clickButton2() { document.getElementById('but_v4-2').click(); }");
-            //            head2.AppendChild(s2);
-            //            string html = webBrowser1.Document.GetElementsByTagName("html")[0].InnerHtml;
-            //            webBrowser1.Document.InvokeScript("clickButton2");
-            //            //Sends confirmation request and redirects the page
-            //        }
-            //        catch { }
-            //    }
-            //}
-            //catch { }
-        }
-
-        private string GetCurrentPrice(string id)
-        {
-            //Gets current price of an item from the API
-            XmlDocument doc2 = new XmlDocument();
-            doc2.Load("http://open.api.ebay.com/shopping?callname=GetSingleItem&responseencoding=XML&appid=GregoryM-mailer-PRD-a45ed6035-97c14545&siteid=0&version=967&ItemID=" + id + "&IncludeSelector=Details");
-            string price = ((XmlElement)((XmlElement)doc2.GetElementsByTagName("GetSingleItemResponse")[0]).GetElementsByTagName("Item")[0]).GetElementsByTagName("ConvertedCurrentPrice")[0].InnerText;
-            return price;
-        }
-
-        private void removeItem_Click(object sender, EventArgs e)
-        {
-            //Removes an item from the list depending on the item number
+            DateTime closestTime = new DateTime(9999, 12, 31, 23, 59, 59);
             for (int i = 0; i < items.Count; i++)
             {
-                if (items[i].Split(',')[1] == itemNumber.Text)
+                TimeSpan endSpan = items[i].EndTime - DateTime.Now;
+                TimeSpan closestSpan = closestTime - DateTime.Now;
+                if (endSpan < closestSpan)
                 {
-                    for (int q = 0; q < itemTable.Items.Count; q++)
-                    {
-                        if (itemTable.Items[q].SubItems[1].Text == items[i].Split(',')[1])
-                        {
-                            itemTable.Items.Remove(itemTable.Items[q]);
-                            items.RemoveAt(i);
-                            int index = itemIds.IndexOf(itemNumber.Text);
-                            itemIds.Remove(itemNumber.Text);
-                            maxBids.RemoveAt(index);
-
-                            if (closestID == itemNumber.Text)
-                            {
-                                label1.Text = "Next Upcoming Auction:";
-                                label1.ForeColor = Color.Black;
-                            }
-                        }
-                    }
-
-
-                    Log("Removed item number " + itemNumber.Text);
+                    closestTime = items[i].EndTime;
+                    endingTime = items[i].EndTime;
+                    closestItem = items[i];
                 }
             }
-        }
 
-        private void Import_Click(object sender, EventArgs e)
-        {
-            //Imports a spreadsheet of item numbers and bids
-            if (openCSV.ShowDialog() == DialogResult.OK)
+            if (closestTime.Year == 9999)
+                return;
+
+            TimeSpan timeLeft = endingTime - DateTime.Now;
+            string timeLeftStr = timeLeft.Days + "d " + timeLeft.Hours + "h " + timeLeft.Minutes + "m " + timeLeft.Seconds + "s";
+            if (timeLeft.TotalSeconds % 2 == 0)
             {
-                //Thread.Sleep(200);
-
-                StreamReader reader = new StreamReader(openCSV.FileName);
-                string data = reader.ReadToEnd();
-
-                string[] lines = data.Split('\n');
-                lines[0] = "";
-                for (int i = 0; i < lines.Length; i++)
-                {
-                    try
-                    {
-                        if (lines[i] == "")
-                            continue;
-
-                        string[] comp = lines[i].Split(',');
-                        itemIds.Add(comp[0]);
-
-                        if (comp[1].Contains("\r"))
-                        {
-                            maxBids.Add(double.Parse(comp[1].Substring(0, comp[1].Length - 1)));
-                        }
-                        else
-                        {
-                            maxBids.Add(double.Parse(comp[1]));
-                        }
-
-                        //MessageBox.Show(itemNumber.Text + " " + maxBid.Text);
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Failed to add item " + lines[i]);
-                        continue; //first line headings
-                    }
-                }
-
-                itemNumber.Text = "";
-                maxBid.Text = "";
-
-                Log("Imported item spreadsheet at " + openCSV.FileName);
-            }
-        }
-
-        private void removeItem_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void itemNumber_MaskInputRejected(object sender, MaskInputRejectedEventArgs e)
-        {
-            
-        }
-
-        private void itemNumber_TextChanged(object sender, EventArgs e)
-        {
-            if (itemNumber.Text == "")
-            {
-                removeItem.Text = "Clear Items";
+                Invoke(new Action(() => { label1.Text = "Next Upcoming Auction: " + closestItem.Name + " in " + timeLeftStr; }));
             }
             else
             {
-                removeItem.Text = "Remove Item";
+                try
+                {
+                    Invoke(new Action(() => { label1.Text = "Next Upcoming Auction: " + closestItem.ItemNumber + " in " + timeLeftStr; }));
+                }
+                catch (Exception ex)
+                {
+                    Log(ex.Message);
+                }
             }
+
+            if (timeLeft.TotalMinutes < 10)
+            {
+                label1.ForeColor = Color.Red;
+            }
+            else
+            {
+                label1.ForeColor = Color.Black;
+            }
+
+            if (timeLeft.TotalMilliseconds < (double)numericUpDown1.Value)
+            {
+                BidOnItem(closestItem);
+                Log("Sent bid request for " + closestItem.ItemNumber);
+                items.Remove(closestItem);
+                closestItem = new ItemInformation();
+                endingTime = new DateTime();
+                Invoke(new Action(() => { label1.ForeColor = Color.Black; }));
+                Invoke(new Action(() => { label1.Text = "Next Upcoming Auction: "; }));
+            }
+        }
+
+        List<string> finishedIDs = new List<string>();
+        private void BidOnItem(ItemInformation item)
+        {
+            if (finishedIDs.Contains(item.ItemNumber))
+                return;
+
+            try
+            {
+                finishedIDs.Add(item.ItemNumber);
+                if (double.Parse(item.Price) < double.Parse(item.Bid))
+                {
+                    string finalPrice = item.Bid;
+
+                    ProcessStartInfo startInfo = new ProcessStartInfo("chrome", "https://offer.ebay.com/ws/eBayISAPI.dll?MfcISAPICommand=MakeBid&uiid=1859999246&co_partnerid=2&fb=2&item=" + item.ItemNumber + "&maxbid=" + (double.Parse(item.Bid)) + "&Ctn=Continue");
+                    startInfo.WindowStyle = ProcessWindowStyle.Maximized;
+                    Process.Start(startInfo);
+
+                    Thread.Sleep(1500);
+
+                    Cursor.Position = buttonCoordinates;
+                    LeftMouseClick(buttonCoordinates.X, buttonCoordinates.Y);
+
+                    Log("Confirmed bid for item " + item.ItemNumber);
+                }
+                else
+                {
+                    //Logs failure of auctions whose current prices exceeded bid
+                    Log("Bid amount " + String.Format(item.Bid, "C") + " exceeded requested bid of " + item.Price + " on item number " + itemNumber.Text);
+                }
+            }
+            catch
+            {
+                Log("Exception");
+            }
+        }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        static extern bool SetCursorPos(int x, int y);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        public static extern void mouse_event(int dwFlags, int dx, int dy, int cButtons, int dwExtraInfo);
+
+        public const int MOUSEEVENTF_LEFTDOWN = 0x02;
+        public const int MOUSEEVENTF_LEFTUP = 0x04;
+
+        public static void LeftMouseClick(int xpos, int ypos)
+        {
+            SetCursorPos(xpos, ypos);
+            mouse_event(MOUSEEVENTF_LEFTDOWN, xpos, ypos, 0, 0);
+            mouse_event(MOUSEEVENTF_LEFTUP, xpos, ypos, 0, 0);
         }
 
         private void MultipleAuctions_Load(object sender, EventArgs e)
         {
-            //System.Timers.Timer timer = new System.Timers.Timer(2500);
+            System.Timers.Timer timer = new System.Timers.Timer(2500);
+            timer.Elapsed += new ElapsedEventHandler(updateInformation_Tick);
+            timer.Enabled = true;
 
-            // Hook up the Elapsed event for the timer.
-            //timer.Elapsed += new ElapsedEventHandler(updateTime_Tick);
+            System.Timers.Timer timer2 = new System.Timers.Timer(1500);
+            timer2.Elapsed += new ElapsedEventHandler(updateTable_Tick);
+            timer2.Enabled = true;
 
-            //timer.Enabled = true;
-        }
-
-        private void viewLog_Click(object sender, EventArgs e)
-        {
-            //Opens current day's log for viewing
-            Process.Start("notepad", CurrentDatePath());
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            Process.Start(@"Past Logs");
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            if (itemNumber.Text == "")
-            {
-                MessageBox.Show("Please enter a valid active item number.");
-            }
-            else
-            {
-                MessageBox.Show("An eBay confirmation page will be opened. Within five seconds, place your cursor over the \"Confirm Bid\" button.");
-
-                try
-                {
-                    Process process = new Process();
-                    ProcessStartInfo startInfo = new ProcessStartInfo("chrome", "https://offer.ebay.com/ws/eBayISAPI.dll?MfcISAPICommand=MakeBid&uiid=1859999246&co_partnerid=2&fb=2&item=" + itemNumber.Text + "&maxbid=" + (double.Parse(maxBid.Text)) + "&Ctn=Continue");
-                    startInfo.WindowStyle = ProcessWindowStyle.Maximized;
-                    process.StartInfo = startInfo;
-                    process.Start();
-                }
-                catch
-                {
-                    MessageBox.Show("Invalid input.");
-                }
-
-                Thread.Sleep(5000);
-
-                this.Activate();
-
-                button = Cursor.Position;
-                MessageBox.Show("Bid confirmation button placed at " + button.X + ", " + button.Y);
-
-                addItem.Enabled = true;
-                Import.Enabled = true;
-            }
-        }
-
-        [DllImport("user32.dll")]
-        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-        private void update(object sender, EventArgs e)
-        {
-            updateList();
+            System.Timers.Timer timer3 = new System.Timers.Timer(200);
+            timer3.Elapsed += new ElapsedEventHandler(checkForEndingAuction_Tick);
+            timer3.Enabled = true;
         }
     }
 }
