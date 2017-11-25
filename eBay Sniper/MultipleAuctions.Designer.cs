@@ -50,6 +50,7 @@
             this.updateInformation = new System.Windows.Forms.Timer(this.components);
             this.checkForEndingAuction = new System.Windows.Forms.Timer(this.components);
             this.openCSV = new System.Windows.Forms.OpenFileDialog();
+            this.checkAuction = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -158,7 +159,7 @@
             this.numericUpDown1.Size = new System.Drawing.Size(120, 20);
             this.numericUpDown1.TabIndex = 2;
             this.numericUpDown1.Value = new decimal(new int[] {
-            2500,
+            3000,
             0,
             0,
             0});
@@ -227,6 +228,11 @@
             this.checkForEndingAuction.Interval = 200;
             this.checkForEndingAuction.Tick += new System.EventHandler(this.checkForEndingAuction_Tick);
             // 
+            // checkAuction
+            // 
+            this.checkAuction.Enabled = true;
+            this.checkAuction.Tick += new System.EventHandler(this.checkAuction_Tick);
+            // 
             // MultipleAuctions
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -248,6 +254,7 @@
             this.MaximizeBox = false;
             this.Name = "MultipleAuctions";
             this.Text = "eBay Browser Sniper";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MultipleAuctions_FormClosing);
             this.Load += new System.EventHandler(this.MultipleAuctions_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             this.ResumeLayout(false);
@@ -278,5 +285,6 @@
         private System.Windows.Forms.Timer updateInformation;
         private System.Windows.Forms.Timer checkForEndingAuction;
         private System.Windows.Forms.OpenFileDialog openCSV;
+        private System.Windows.Forms.Timer checkAuction;
     }
 }
