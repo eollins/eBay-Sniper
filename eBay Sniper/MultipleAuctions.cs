@@ -335,7 +335,6 @@ namespace eBay_Sniper
                 }
             }
 
-            numericUpDown1.Value = mills;
             timeCutoff = mills;
 
             TimeSpan timeLeft = endingTime - DateTime.Now;
@@ -418,6 +417,7 @@ namespace eBay_Sniper
             }
 
             //numericUpDown1.Value = 2500;
+            timeCutoff = 0;
             endingAuctions.Clear();
         }
 
